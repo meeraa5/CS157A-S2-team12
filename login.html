@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Spartan Exchange</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="login-container">
+        <h2 id="form-title">Spartan Exchange Login</h2>
+
+        <div class="auth-toggle">
+            <button type="button" id="login-tab" class="active-tab" onclick="showLogin()">Login</button>
+            <button type="button" id="signup-tab" onclick="showSignup()">Create Account</button>
+        </div>
+
+        <form id="auth-form" onsubmit="return handleAuth(event)">
+            <input 
+                type="email" 
+                id="email" 
+                placeholder="Enter your @sjsu.edu email" 
+                required
+            >
+
+            <input 
+                type="password" 
+                id="password" 
+                placeholder="Enter password" 
+                required
+            >
+
+            <input 
+                type="password" 
+                id="confirm-password" 
+                placeholder="Confirm password" 
+                style="display: none;"
+            >
+
+            <button type="submit" id="submit-btn">Login</button>
+        </form>
+
+        <p id="error-msg"></p>
+        <p id="success-msg"></p>
+    </div>
+
+    <script>
+        let isLoginMode = true;
+
+        function showLogin() {
+            isLoginMode = true;
+            document.getElementById("form-title").innerText = "Spartan Exchange Login";
+            document.getElementById("submit-btn").innerText = "Login";
+            document.getElementById("confirm-password").style.display = "none";
+            document.getElementById("confirm-password").removeAttribute("required");
+            document.getElementById("login-tab").classList.add("active-tab");
+            document.getElementById("signup-tab").classList.remove("active-tab");
+            clearMessages();
+        }
+
+        function showSignup() {
+            isLoginMode = false;
+            document.getElementById("form-title").innerText = "Create Spartan Exchange Account";
+            document.getElementById("submit-btn").innerText = "Create Account";
+            document.getElementById("confirm-password").style.display = "block";
+            document.getElementById("confirm-password").setAttribute("required", true);
+            document.getElementById("signup-tab").classList.add("active-tab");
+            document.getElementById("login-tab").classList.remove("active-tab");
+            clearMessages();
+        }
+
+        function clearMessages() {
+            document.getElementById("error-msg").innerText = "";
+            document.getElementById("success-msg").innerText = "";
+        }
+
+        function handleAuth(event) {
+            event.preventDefault();
+            clearMessages();
+
+            const email = document.getElementById("email").value.trim().toLowerCase();
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirm-password").value;
+
+            if (!email.endsWith("@sjsu.edu")) {
+                document.getElementById("error-msg").innerText = "Only @sjsu.edu emails are allowed.";
+                return false;
+            }
+
+            if (isLoginMode) {
+                loginUser(email, password);
+            } else {
+                createAccount(email, password, confirmPassword);
+            }
+
+            return false;
+        }
+
+        function createAccount(email, password, confirmPassword) {
+            if (password.length < 6) {
+                document.getElementById("error-msg").innerText = "Password must be at least 6 characters.";
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                document.getElementById("error-msg").innerText = "Passwords do not match.";
+                return;
+            }
+
+            const existingUser = localStorage.getItem(email);
+
+            if (existingUser) {
+                document.getElementById("error-msg").innerText = "Account already exists. Please log in.";
+                return;
+            }
+
+            const userData = {
+                email: email,
+                password: password
+            };
+
+            localStorage.setItem(email, JSON.stringify(userData));
+
+            document.getElementById("success-msg").innerText = "Account created successfully. Please log in.";
+            document.getElementById("auth-form").reset();
+            showLogin();
+        }
+
+        function loginUser(email, password) {
+            const storedUser = localStorage.getItem(email);
+
+            if (!storedUser) {
+                document.getElementById("error-msg").innerText = "No account found. Please create an account first.";
+                return;
+            }
+
+            const userData = JSON.parse(storedUser);
+
+            if (userData.password !== password) {
+                document.getElementById("error-msg").innerText = "Incorrect password.";
+                return;
+            }
+
+            localStorage.setItem("loggedInUser", email);
+            window.location.href = "index.html";
+        }
+    </script>
+
+</body>
+</html>
