@@ -46,9 +46,9 @@
     </div>
 
     <script>
-        let isLoginMode = true;
+        let isLoginMode = true; //Login or signup mode
 
-        function showLogin() {
+        function showLogin() { //Login mode 
             isLoginMode = true;
             document.getElementById("form-title").innerText = "Spartan Exchange Login";
             document.getElementById("submit-btn").innerText = "Login";
@@ -59,7 +59,7 @@
             clearMessages();
         }
 
-        function showSignup() {
+        function showSignup() { //Sign up mode
             isLoginMode = false;
             document.getElementById("form-title").innerText = "Create Spartan Exchange Account";
             document.getElementById("submit-btn").innerText = "Create Account";
@@ -70,7 +70,7 @@
             clearMessages();
         }
 
-        function clearMessages() {
+        function clearMessages() { //Syccess Message or login error message is cleared when switching between login and signup modes
             document.getElementById("error-msg").innerText = "";
             document.getElementById("success-msg").innerText = "";
         }
@@ -83,12 +83,12 @@
             const password = document.getElementById("password").value;
             const confirmPassword = document.getElementById("confirm-password").value;
 
-            if (!email.endsWith("@sjsu.edu")) {
+            if (!email.endsWith("@sjsu.edu")) { //Ensures only SJSU emails can be used to create account or login
                 document.getElementById("error-msg").innerText = "Only @sjsu.edu emails are allowed.";
                 return false;
             }
 
-            if (isLoginMode) {
+            if (isLoginMode) { //Login or create account 
                 loginUser(email, password);
             } else {
                 createAccount(email, password, confirmPassword);
@@ -97,22 +97,22 @@
             return false;
         }
 
-        function createAccount(email, password, confirmPassword) {
+        function createAccount(email, password, confirmPassword) {  //Create account function
             if (password.length < 6) {
                 document.getElementById("error-msg").innerText = "Password must be at least 6 characters.";
-                return;
+                return; //Only password legnth >=6 is allowed 
             }
 
             if (password !== confirmPassword) {
                 document.getElementById("error-msg").innerText = "Passwords do not match.";
-                return;
+                return; //Password and confirm password must match
             }
 
             const existingUser = localStorage.getItem(email);
 
             if (existingUser) {
                 document.getElementById("error-msg").innerText = "Account already exists. Please log in.";
-                return;
+                return; 
             }
 
             const userData = {
@@ -145,6 +145,10 @@
             localStorage.setItem("loggedInUser", email);
             window.location.href = "index.html";
         }
+
+        //Login user function performs authentication by retrieving stored credentials validating user input against
+        //Stored data and establishing a session using local storage upon successful validation the user is redirectedf to main 
+        //Main application interface
     </script>
 
 </body>

@@ -22,7 +22,8 @@
         <nav>
             <a href="index.html">Home</a>
             <a href="login.html">Account</a>
-            <a href="#">Help</a>
+            <a href="wishlist.html">Wishlist</a>
+            <a href ='#'>Help</a>
             <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
             <span id="user-info" style="margin-left:20px;"></span>
             <a href="#" onclick="logout()" id="logout-btn" style="display:none;">Logout</a>
@@ -31,7 +32,7 @@
 
     <section class="hero">
         <h2>Welcome to Spartan Exchange</h2>
-        <p>Buy and sell with fellow Spartans</p>
+        <p>Buy from fellow Spartans</p>
     </section>
 
     <section class="products">
@@ -44,21 +45,21 @@
     </footer>
 
     <script>
-        const user = localStorage.getItem("loggedInUser");
+        const user = localStorage.getItem("loggedInUser"); //User Session or login checck
 
         if (!user) {
-            window.location.href = "login.html";
+            window.location.href = "login.html"; //Connencts to login page
         } else {
             document.getElementById("user-info").innerText = user;
             document.getElementById("logout-btn").style.display = "inline";
         }
 
-        function logout() {
+        function logout() { //Logout function that clears session and redirects to login page
             localStorage.removeItem("loggedInUser");
             window.location.href = "login.html";
         }
 
-        const products = [
+        const products = [ //Temporary items to test webpage functionality
             {
                 id: 1,
                 name: "Calculus Textbook",
@@ -90,45 +91,46 @@
         ];
 
         let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
 
-        function displayProducts(productList) {
+        function displayProducts(productList) { //Function to display products on the homepage, also used for search results
             const productGrid = document.getElementById("product-grid");
             productGrid.innerHTML = "";
 
-            if (productList.length === 0) {
+            if (productList.length === 0) { //If no products for search criteria 
                 productGrid.innerHTML = "<p>No matching products found.</p>";
                 return;
             }
 
-            productList.forEach(product => {
-                productGrid.innerHTML += `
-                    <div class="product">
-                        <img src="${product.image}" alt="${product.name}">
-                        <h3>${product.name}</h3>
-                        <p>${product.description}</p>
-                        <p>$${product.price.toFixed(2)}</p>
-                        <button onclick="addToCart(${product.id})">Add to Cart</button>
-                    </div>
-                `;
-            });
+         productList.forEach(product => {
+    productGrid.innerHTML += `
+        <div class="product">
+            <img src="${product.image}" alt="${product.name}">
+            <h3>${product.name}</h3>
+            <p>${product.description}</p>
+            <p>$${product.price.toFixed(2)}</p>
+            <button onclick="addToCart(${product.id})">Add to Cart</button>
+            <button onclick="addToWishlist(${product.id})">Add to Wishlist</button>
+        </div>
+    `;
+});
         }
 
-        function searchProducts() {
+        function searchProducts() { //Search function that filters products based on name or description
             const searchValue = document.getElementById("search-input").value.toLowerCase().trim();
 
-            const filteredProducts = products.filter(product =>
-                product.name.toLowerCase().includes(searchValue) ||
+            const filteredProducts = products.filter(product => //Filtreration functionality 
+                product.name.toLowerCase().includes(searchValue) || //Ensures that when searching regardless of upper case or lower case
                 product.description.toLowerCase().includes(searchValue)
             );
 
             displayProducts(filteredProducts);
         }
 
-        function addToCart(productId) {
+        function addToCart(productId) { //Shopping cart functionality 
             const product = products.find(p => p.id === productId);
 
             if (!product) return;
-
             const existingItem = cart.find(item => item.id === productId);
 
             if (existingItem) {
@@ -147,6 +149,30 @@
             updateCartCount();
             alert(product.name + " added to cart");
         }
+         
+        function addToWishlist(productId) { //Wishglist functionalityt 
+    const product = products.find(p => p.id === productId);
+
+    if (!product) return;
+
+    const existingItem = wishlist.find(item => item.id === productId);
+
+    if (existingItem) {
+        alert(product.name + " is already in your wishlist"); //This ensures that u would not add the same item to wishlist page
+        return;
+    }
+
+    wishlist.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        description: product.description
+    });
+
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+    alert(product.name + " added to wishlist");
+}
 
         function updateCartCount() {
             const cartCount = document.getElementById("cart-count");

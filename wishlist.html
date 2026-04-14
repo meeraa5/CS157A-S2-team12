@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wishlist - Spartan Exchange</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<header>
+    <h1>My Wishlist</h1>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="login.html">Account</a>
+        <a href="wishlist.html">Wishlist</a>
+        <a href="#">Help</a>
+        <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+    </nav>
+</header>
+
+<main class="products">
+    <section class="cart-left">
+        <h2>Saved Items</h2>
+        <div id="wishlist-grid"></div>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2026 Spartan Exchange. All rights reserved.</p>
+</footer>
+
+<script>
+    let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    const wishlistGrid = document.getElementById("wishlist-grid");
+    //Update wishlist 
+    function updateWishlistPage() {
+        wishlistGrid.innerHTML = "";
+
+        if (wishlist.length === 0) {
+            wishlistGrid.innerHTML = "<p>No items in wishlist.</p>";
+        } else {
+            wishlist.forEach(item => {
+                wishlistGrid.innerHTML += `
+                    <div class="product-card">
+                        <img src="${item.image}" alt="${item.name}">
+                        <h3>${item.name}</h3>
+                        <p>$${item.price.toFixed(2)}</p>
+                        <button onclick="addToCart(${item.id})">Add to Cart</button>
+                        <button onclick="removeFromWishlist(${item.id})">Remove</button>
+                    </div>
+                `;
+            });
+        }
+    }
+    //Add to cart functionality is implemented by retrieving the product details from the wishlist based on the provided product ID and then adding it to the cart stored in local storage if it exists or creating a new cart if it doesn't exist. The user is then alerted that the item has been added to the cart.
+    function addToCart(productId) {
+        const product = wishlist.find(p => p.id === productId);
+
+        if (product) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const existingItem = cart.find(item => item.id === productId);
+
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+
+            localStorage.setItem("cart", JSON.stringify(cart));
+            alert(product.name + " added to cart!");
+        }
+    }
+    //Remove items from wishlist functionality is implemented by filtering out the item with the specified product ID from the wishlist array and then updating the local storage and webpage to reflect the changes
+    function removeFromWishlist(productId) {
+        wishlist = wishlist.filter(item => item.id !== productId);
+        localStorage.setItem("wishlist", JSON.stringify(wishlist));
+        updateWishlistPage();
+        alert("Item removed from wishlist.");
+    }
+
+    updateWishlistPage();
+</script>
+
+</body>
+</html>

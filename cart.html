@@ -37,7 +37,7 @@
 </main>
 
 <script>
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let cart = JSON.parse(localStorage.getItem("cart")) || []; //Load cart data from local storage
 
     function updateCartPage() {
         const cartItemsDiv = document.getElementById("cart-items");
@@ -53,7 +53,7 @@
             cartItemsDiv.innerHTML = "<p>No items in cart.</p>";
         } else {
             cart.forEach(item => {
-                total += item.price * item.quantity;
+                total += item.price * item.quantity; //Value of the cart is calculated by multiplying price and quantity of each item and adding them up
                 totalItems += item.quantity;
 
                 cartItemsDiv.innerHTML += `
@@ -82,7 +82,7 @@
         localStorage.setItem("cart", JSON.stringify(cart));
     }
 
-    function changeQuantity(id, amount) {
+    function changeQuantity(id, amount) { //Functionailiy to change quantity of items in cart
         const item = cart.find(i => i.id === id);
         if (!item) return;
 
@@ -92,10 +92,10 @@
             cart = cart.filter(i => i.id !== id);
         }
 
-        updateCartPage();
+        updateCartPage(); //Update cart webpage after changing quantity of items in cart
     }
 
-    function removeFromCart(id) {
+    function removeFromCart(id) { //Functionality to remove item from cart
         cart = cart.filter(i => i.id !== id);
         updateCartPage();
     }
