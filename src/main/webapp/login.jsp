@@ -29,7 +29,7 @@ if (error !=null) {
         }
   %>
 
-
+<!-- for registration we need to add: full name and preferred name unless you want to make another page for adding that info -->
  
 <form id="auth-form" action="<%= request.getContextPath() %>/AuthServlet" method="post" onsubmit="return validateForm()">Bu
  <input type="hidden" id="mode" name="mode" value="login">
