@@ -18,6 +18,7 @@
 //Decision making 
 String error = request.getParameter("Error");
 String success = request.getParameter("Success");
+
 if (error !=null) {
 	 %>
      <div class="message"><%= error %></div>
