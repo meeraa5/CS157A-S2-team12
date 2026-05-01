@@ -191,6 +191,9 @@ footer {
 }
 
 /* ADMIN PAGE */
+.admin-functions{
+	display: none;
+}
 .admin-functions-box {
     background-color: white;
     margin: 20px;
