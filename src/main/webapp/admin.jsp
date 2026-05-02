@@ -101,10 +101,39 @@ if (role == null || !role.equals("admin")) {
 
 	<div id="adminFunctions" class="admin-functions">
 		<div id="newProd" class="admin-functions-box">
-			<h2 class="admin-functions-headers">Create New Listing</h2>
-			<form id="newProdForm" action="/newProd" method="post">
-				
-			</form>
+            <form id="newProdForm" action="/newProd" method="post">
+                <fieldset>
+                    <legend>
+                        <h2 class="admin-functions-headers">Create New Listing</h2>
+                    </legend>
+                    <label for="prodName">Product Name:</label>
+                    <input type="text" id="productName" name="productName" required> <br><br>
+
+                    <label for="info">Information:</label>
+                    <input type="text" id="info" name="info" required> <br><br>
+
+                    <label for="price">Price:</label>
+                    <input type="text" id="price" name="price" required> <br><br>
+
+                    <label for="condition">Condition:</label>
+                    <input type="text" id="condition" name="condition" required> <br><br>
+
+                    <label for="quantityAvail">Quantity:</label>
+                    <input type="text" id="quantityAvail" name="quantityAvail" required> <br><br>
+
+                    <label for="productStatus">Status:</label>
+                    <input type="text" id="productStatus" name="productStatus" required> <br><br>
+
+                    <label for="categoryId">Category ID:</label>
+                    <input type="text" id="categoryId" name="categoryId" required> <br><br>
+
+                    <label for="createdByAdminId">Admin ID:</label>
+                    <input type="text" id="createdByAdminId" name="createdByAdminId" required> <br><br>
+
+                    <button type="submit">Add New Product</button>
+            
+            </fieldset>
+            </form>
 		</div>
 
 		<div id="editInformation" class="admin-functions-box">
