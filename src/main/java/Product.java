@@ -10,6 +10,8 @@ public class Product {
 	private LocalDate dateAdded;
 	private String lowStockNotice;
 	private int userId;
+	private int categoryId;
+    private int createdByAdminId;
 
 	protected Product() {
 	}
@@ -22,7 +24,11 @@ public class Product {
 			int quantityAvail,
 			String productStatus,
 			LocalDate dateAdded,
-			String lowStockNotice, int userId) { // i hate when parameters are like this but it's easier to see
+			String lowStockNotice, 
+			int userId,
+			int categoryId,
+			int createdByAdminId
+			) { // i hate when parameters are like this but it's easier to see
 		// product entity to easily (at least i hope so) create and delete products
 		this.productId = productId;
 		this.productName = productName;
@@ -34,10 +40,14 @@ public class Product {
 		this.dateAdded = dateAdded;
 		this.lowStockNotice = lowStockNotice;
 		this.userId = userId;
+		this.categoryId = categoryId;
+		this.createdByAdminId =  createdByAdminId;
 
 	}
 	
 	// getters and setters to edit products
+	
+	
 
 	public int getProductId() {
 		return productId;
@@ -118,6 +128,24 @@ public class Product {
 	public void setUserId(int userId) {
 		this.userId = userId;
 	}
+
+	public int getCategoryId() {
+		return categoryId;
+	}
+
+	public void setCategoryId(int categoryId) {
+		this.categoryId = categoryId;
+	}
+
+	public int getCreatedByAdminId() {
+		return createdByAdminId;
+	}
+
+	public void setCreatedByAdminId(int createdByAdminId) {
+		this.createdByAdminId = createdByAdminId;
+	}
+	
+	
 
 
 }
