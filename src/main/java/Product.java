@@ -29,7 +29,7 @@ public class Product {
 			int categoryId,
 			int createdByAdminId
 			) { // i hate when parameters are like this but it's easier to see
-		// product entity to easily (at least i hope so) create and delete products
+		// create product entity to easily (at least i hope so) create and delete products
 		this.productId = productId;
 		this.productName = productName;
 		this.info = info;

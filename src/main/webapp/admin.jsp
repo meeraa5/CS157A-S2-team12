@@ -29,12 +29,21 @@ if (role == null || !role.equals("admin")) {
 
 	<script>
 		function toggleVisibility(id) {
+			hideAll();
 			var theDiv = document.getElementById(id);
-			if (theDiv.style.display == "none") {
+			if (theDiv.style.display == "none" || theDiv.style.display == "") {
 				theDiv.style.display = "block";
-			} else {
-				theDiv.style.display = "none";
 			}
+		}
+
+		function hideAll() { // this is crude but oh well. hides all divs
+			monitor.style.display = "none";
+			newProd.style.display = "none";
+			editInformation.style.display = "none";
+			reactivate.style.display = "none";
+			suspend.style.display = "none";
+			changeQuantity.style.display = "none";
+			restockProducts.style.display = "none";
 		}
 	</script>
 
@@ -63,13 +72,13 @@ if (role == null || !role.equals("admin")) {
 
 	<h2>Management Options</h2>
 	<ul>
-		<li><a href="#" onclick="toggleVisibility('new-prod')">Create
+		<li><a href="#" onclick="toggleVisibility('newProd')">Create
 				New Product Listing</a></li>
-		<li><a href="#" onclick="toggleVisibility('edit-information')">Edit
+		<li><a href="#" onclick="toggleVisibility('editInformation')">Edit
 				Product Information</a></li>
-		<li><a href="#" onclick="toggleVisibility('adust-quantity')">Adjust
+		<li><a href="#" onclick="toggleVisibility('changeQuantity')">Adjust
 				Inventory Quantities</a></li>
-		<li><a href="#" onclick="toggleVisibility('restock-products')">Restock
+		<li><a href="#" onclick="toggleVisibility('restockProducts')">Restock
 				Products</a></li>
 
 	</ul>
@@ -88,26 +97,39 @@ if (role == null || !role.equals("admin")) {
 					User Account</a></li>
 		</ul>
 	</div>
-	<!-- there were two of this user management div so i (samantha) deleted it -->
 	<!-- samantha will do admin and admin servlet -->
 
-	<div class="admin-functions">
-		<div id="new-prod" class="admin-functions-box">
+	<div id="adminFunctions" class="admin-functions">
+		<div id="newProd" class="admin-functions-box">
 			<h2 class="admin-functions-headers">Create New Listing</h2>
-			<p>test</p>
+			<form id="newProdForm" action="/newProd" method="post">
+				
+			</form>
 		</div>
 
-		<div id="edit-information"></div>
+		<div id="editInformation" class="admin-functions-box">
+			<h2 class="admin-functions-headers">Edit Product Information</h2>
+		</div>
 
-		<div id="adjust-quantity"></div>
+		<div id="changeQuantity" class="admin-functions-box">
+			<h2 class="admin-functions-headers">Adjust Inventory Quantities</h2>
+		</div>
 
-		<div id="restock-products"></div>
+		<div id="restockProducts" class="admin-functions-box">
+			<h2 class="admin-functions-headers">Restock Products</h2>
+		</div>
 
-		<div id="monitor"></div>
+		<div id="monitor" class="admin-functions-box">
+			<h2 class="admin-functions-headers">Monitor Users</h2>
+		</div>
 
-		<div id="suspend"></div>
+		<div id="suspend" class="admin-functions-box">
+			<h2 class="admin-functions-headers">Suspend Users</h2>
+		</div>
 
-		<div id="reactivate"></div>
+		<div id="reactivate" class="admin-functions-box">
+			<h2 class="admin-functions-headers">Reactivate Users</h2>
+		</div>
 	</div>
 
 

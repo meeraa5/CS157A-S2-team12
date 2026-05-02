@@ -34,7 +34,7 @@ if (error !=null) {
 
 
  
-<form id="auth-form" action="<%= request.getContextPath() %>/AuthServlet" method="post" onsubmit="return validateForm()">Bu
+<form id="auth-form" action="<%= request.getContextPath() %>/AuthServlet" method="post" onsubmit="return validateForm()">Bu <!-- is that Bu supposed to be there? -->
  <input type="hidden" id="mode" name="mode" value="login"> //User login or registration
   
 <label for="email">Email</label>
