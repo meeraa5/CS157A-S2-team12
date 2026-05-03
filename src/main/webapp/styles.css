@@ -191,8 +191,10 @@ footer {
 }
 
 /* ADMIN PAGE */
-.admin-functions{
-	display: none;
+
+.formStuff{
+    padding: 10px;
+    width: 80%;
 }
 .admin-functions-box {
     background-color: white;
