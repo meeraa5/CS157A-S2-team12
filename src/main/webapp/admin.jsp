@@ -106,29 +106,43 @@ if (role == null || !role.equals("admin")) {
 					<legend>
 						<h2 class="admin-functions-headers">Create New Listing</h2>
 					</legend>
-					<label for="prodName">Product Name:</label> <input type="text"
+					<label for="productName">Product Name:</label> <input type="text"
 						id="productName" name="productName" class="formStuff" required>
 					<br>
 					<br> <label for="info">Information:</label><br>
 					<textarea id="info" name="info" class="formStuff" required> </textarea>
 					<br>
 					<br> <label for="price">Price:</label> <input type="text"
-						id="price" name="price" class="formStuff" required> <br>
-					<br> <label for="condition">Condition:</label> <input
-						type="text" id="condition" name="condition" class="formStuff"
-						required> <br>
+						id="price" name="price" class="formStuff" required> 
+					<br>
+					<br> <label for="condition">Condition:</label> 
+					<select name="condition" id="condition" required>
+    					<option value="New">New</option>
+    					<option value="Like New">Like New</option>
+    					<option value="Good">Good</option>
+    					<option value="Fair">Fair</option>
+    					<option value="Used">Used</option>
+  					</select> 
+					<br>
 					<br> <label for="quantityAvail">Quantity:</label> <input
 						type="text" id="quantityAvail" name="quantityAvail"
-						class="formStuff" required> <br>
-					<br> <label for="productStatus">Status:</label> <input
-						type="text" id="productStatus" name="productStatus"
-						class="formStuff" required> <br>
+						class="formStuff" required> 
+					<br>
+					<br> <label for="productStatus">Status:</label> 
+					<select name="productStatus" id="productStatus" required>
+    					<option value="Available" selected>Available</option>
+    					<option value="Out_of_Stock">Out of Stock</option>
+    					<option value="Inactive">Inactive</option>
+  					</select>
+					<br>
 					<br> <label for="categoryId">Category ID:</label> <input
 						type="text" id="categoryId" name="categoryId" class="formStuff"
-						required> <br>
+						required> 
+					<br>
 					<br> <label for="createdByAdminId">Admin ID:</label> <input
 						type="text" id="createdByAdminId" name="createdByAdminId"
-						class="formStuff" required> <br>
+						class="formStuff" required> 
+					<br>
 					<br>
 
 					<button type="submit">Add New Product</button> <!-- eclipse auto format makes me mad -->
