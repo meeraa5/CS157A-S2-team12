@@ -121,6 +121,8 @@ public class ProductDao {
     	return products;
     }
     
+    
+    
     public static void editProduct(Product prod) throws SQLException {
     	try {
             Connection con = MySQLCon.getConnection();

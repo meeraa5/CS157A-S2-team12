@@ -2,7 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ page
 	import="java.sql.Connection, java.sql.PreparedStatement, java.sql.ResultSet"%>
-<%@ page import="util.MySQLCon, util.Product, java.util.List"%>
+<%@ page import="util.MySQLCon, util.Product, java.util.List, util.RestockHistory"%>
 
 
 
@@ -47,6 +47,7 @@ if (role == null || !role.equals("admin")) {
 			document.getElementById("editInformation").style.display = "none";
 			document.getElementById("reactivate").style.display = "none";
 			document.getElementById("suspend").style.display = "none";
+			document.getElementById("restock").style.display = "none";
 			// changing this was redundant but i'll leave it
 		}
 		
@@ -88,7 +89,8 @@ if (role == null || !role.equals("admin")) {
 		<li><a href="#" onclick="toggleVisibility('newProd')">Create
 				New Product Listing</a></li>
 		<li><a href="#" onclick="toggleVisibility('editInformation')">Edit
-				Product Information, Adjust Inventory Quantity, Restock</a></li>
+				Product Information and Adjust Inventory Quantity</a></li>
+		<li><a href="#" onclick="toggleVisibility('restock')">Restock History</a></li>
 
 	</ul>
 
@@ -359,8 +361,11 @@ if (role == null || !role.equals("admin")) {
     					<option value="Used">Used</option>
   					</select> 
 					<br>
-					<br> <label for="quantityAvail2">Quantity:</label> <input
+					<br> <label for="quantityAvail2">Old Quantity:</label> <input
 						type="text" id="quantityAvail2" name="quantityAvail2"
+						class="formStuff" readonly> <br><br>
+					<label for="quantityAvail3">New Quantity:</label> <input
+						type="text" id="quantityAvail3" name="quantityAvail3"
 						class="formStuff" required> 
 					<br>
 					<br> <label for="productStatus2">Status:</label> 
@@ -380,9 +385,9 @@ if (role == null || !role.equals("admin")) {
 						<h2 class="admin-functions-headers">Confirm Deletion</h2>
 					</legend>
 					<label for="id3">ID:</label> <input type="text"
-						id="id3" name="id3" class="formStuff" readonly>
+						id="id3" name="id3" class="formStuff" readonly> <br> <br>
 					<label for="productName3">Product Name:</label> <input type="text"
-						id="productName3" name="productName3" class="formStuff" disabled>
+						id="productName3" name="productName3" class="formStuff" disabled><br> <br>
 					<label for="yes">please type <b>yes</b> to confirm</label> <input type="text"
 						id="yes" name="yes" class="formStuff" pattern="[yY][eE][sS]" required> <!-- any variant of yes will work -->
 					<br>
@@ -391,6 +396,39 @@ if (role == null || !role.equals("admin")) {
   					</fieldset>
 				</form>
 			</div>
+		</div>
+		
+		<div id="restock" class="admin-functions-box">
+			<h2 class="admin-functions-headers">Restock History</h2>
+			<table id="restockTable">
+				<thead>
+					<tr>
+						<th>Restock ID</th>
+            			<th>Product ID</th>
+            			<th>Admin ID</th>
+            			<th>Quantity Added</th>
+            			<th>Date</th>
+					</tr>
+				</thead>
+				<tbody>
+					<% 
+						try {
+						List<RestockHistory> theHistory = request.getAttribute("theHistory");
+						for (RestockHistory history : theHistory){
+					%>
+						<tr>
+							<td><%= history.getRestockId()%></td>
+							<td><%= history.getResProductId() %></td>
+							<td><%= history.getResAdminId() %></td>
+							<td><%= history.getResQuantityAdded() %></td>
+							<td><%= history.getRestockDate() %></td>
+							
+						</tr>
+						<% }} catch (Exception e) {
+							e.printStackTrace();
+						} %>
+				</tbody>
+			</table>
 		</div>
 
 

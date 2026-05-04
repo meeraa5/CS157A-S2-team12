@@ -13,7 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.RequestDispatcher;
 
 import dao.ProductDao;
+import dao.RestockHistoryDao;
 import util.Product;
+import util.RestockHistory;
 
 /**
  * Servlet implementation class AdminServlet
@@ -110,13 +112,23 @@ public class AdminServlet extends HttpServlet {
 		send.forward(request, response);
 	}
 	
+	private void showRestockHistory(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		List<RestockHistory> theHistory = RestockHistoryDao.selectAllHistory(); // get a list of all the products
+		request.setAttribute("theHistory", theHistory); // set attribute
+		RequestDispatcher send = request.getRequestDispatcher("admin.jsp"); // make an object to send to admin page
+		send.forward(request, response);
+	}
+	
 	private void editProduct(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+		int added = Integer.parseInt(request.getParameter("quantityAvail3")) - Integer.parseInt(request.getParameter("quantityAvail2"));
+		LocalDate theDate = LocalDate.now();
+		
 		int theID = Integer.parseInt(request.getParameter("id2"));
 		String theName = request.getParameter("productName2");
         String theInfo = request.getParameter("info2");
         float thePrice = Float.parseFloat(request.getParameter("price2"));
         String theCondition = request.getParameter("condition2");
-        int theQuantity = Integer.parseInt(request.getParameter("quantityAvail2"));
+        int theQuantity = Integer.parseInt(request.getParameter("quantityAvail3"));
         String theStatus = request.getParameter("productStatus2");
         String theNotice = "no"; // low stock notice
         if (theQuantity < 5){ // change the notice if its low stock
@@ -124,6 +136,7 @@ public class AdminServlet extends HttpServlet {
 		}
         Product edit = new Product(theID, theName, theInfo, thePrice, theCondition, theQuantity, theStatus, theNotice);
         ProductDao.editProduct(edit);
+        RestockHistory entry = new RestockHistory(theID, added, theDate);
         response.sendRedirect("admin.jsp");
 	}
 	
