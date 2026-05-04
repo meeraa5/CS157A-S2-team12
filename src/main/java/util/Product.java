@@ -17,34 +17,6 @@ public class Product {
 
 	protected Product() {
 	}
-
-	public Product(
-			//int productId,
-			String productName,
-			String info, 
-			float price,
-			String condition,
-			int quantityAvail,
-			String productStatus,
-			LocalDate dateAdded,
-			String lowStockNotice, 
-			int categoryId,
-			int createdByAdminId
-			) { // i hate when parameters are like this but it's easier to see
-		// create product entity to easily (at least i hope so) create and delete products
-		//this.productId = productId;
-		this.productName = productName;
-		this.info = info;
-		this.price = price;
-		this.condition = condition;
-		this.quantityAvail = quantityAvail;
-		this.productStatus = productStatus;
-		this.dateAdded = dateAdded;
-		this.lowStockNotice = lowStockNotice;
-		this.categoryId = categoryId;
-		this.createdByAdminId =  createdByAdminId;
-
-	}
 	
 	public Product( // welp
 			int productId,
@@ -72,6 +44,7 @@ public class Product {
 		this.createdByAdminId =  createdByAdminId;
 
 	}
+
 	
 	// getters and setters to edit products
 

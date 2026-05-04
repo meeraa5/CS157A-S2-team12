@@ -2,7 +2,10 @@
 	pageEncoding="UTF-8"%>
 <%@ page
 	import="java.sql.Connection, java.sql.PreparedStatement, java.sql.ResultSet"%>
-<%@ page import="util.MySQLCon"%>
+<%@ page import="util.MySQLCon, util.Product, java.util.List"%>
+
+
+
 
 <%
 String role = (String) session.getAttribute("role");
@@ -33,6 +36,7 @@ if (role == null || !role.equals("admin")) {
 			var theDiv = document.getElementById(id);
 			if (theDiv.style.display == "none" || theDiv.style.display == "") {
 				theDiv.style.display = "block";
+				switcher.value = id;
 			}
 		}
 
@@ -45,31 +49,16 @@ if (role == null || !role.equals("admin")) {
 			changeQuantity.style.display = "none";
 			restockProducts.style.display = "none";
 		}
-	</script>
-
-	<%
-	Connection con = null;
-	PreparedStatement ps = null;
-	ResultSet rs = null;
-	try {
-		con = MySQLCon.getConnection();
-
-		String sql = "SELECT ";
-
-		ps = con.prepareStatement(sql);
-		ps.setInt(1, userId);
-		rs = ps.executeQuery();
-
-		boolean hasUsers = false;
-
-		while (rs.next()) {
-			hasUsers = true;
+		
+		function changeHeader(id){
+			if (id == 'editInformation') {
+				document.getElementById("swivel").innerHTML = "";
+			}
+			else if ()
 		}
-	} finally {
-
-	}
-	%>
-
+	</script>
+	
+	<input type="hidden" id = "switcher" name = "switcher" value="none"> <!-- tells AdminServlet what to use -->
 	<h2>Management Options</h2>
 	<ul>
 		<li><a href="#" onclick="toggleVisibility('newProd')">Create
@@ -151,7 +140,52 @@ if (role == null || !role.equals("admin")) {
 		</div>
 
 		<div id="editInformation" class="admin-functions-box">
-			<h2 class="admin-functions-headers">Edit Product Information</h2>
+			<h2 class="admin-functions-headers" id ="swivel">Edit Product Information</h2>
+			<table id="editTable">
+				<thead>
+					<tr>
+						<th>ID</th>
+            			<th>Name</th>
+            			<th>Information</th>
+            			<th>Price</th>
+            			<th>Condition</th>
+            			<th>Quantity</th>
+            			<th>Status</th>
+            			<th>Date</th>
+            			<th>Low Stock?</th>
+            			<th>Category ID</th>
+            			<th>Created by:</th>
+					</tr>
+				</thead>
+				<tbody>
+					<% 
+						try {
+						List<Product> theProducts = request.getAttribute("theProducts");
+						for (Product product : theProducts){
+					%>
+						<tr>
+							<td><%= product.getProductId() %></td>
+							<td><%= product.getProductName() %></td>
+							<td><%= product.getInfo() %></td>
+							<td><%= product.getPrice() %></td>
+							<td><%= product.getCondition() %></td>
+							<td><%= product.getQuantityAvail() %></td>
+							<td><%= product.getProductStatus() %></td>
+							<td><%= product.getDateAdded() %></td>
+							<td><%= product.getLowStockNotice() %></td>
+							<td><%= product.getCategoryId() %></td>
+							<td><%= product.getCreatedByAdminId() %></td>
+							<td>
+								<a href="<%= request.getContextPath() %>/AdminServlet" id="changeQuantity"></a>
+								<a href="<%= request.getContextPath() %>/AdminServlet"></a>
+							</td>
+							
+						</tr>
+						<% }} catch (Exception e) {
+							e.printStackTrace();
+						} %>
+				</tbody>
+			</table>
 		</div>
 
 		<div id="changeQuantity" class="admin-functions-box">

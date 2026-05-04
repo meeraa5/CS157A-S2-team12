@@ -2,12 +2,14 @@ package servlets;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.RequestDispatcher;
 
 import dao.ProductDao;
 import util.Product;
@@ -28,18 +30,31 @@ public class AdminServlet extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * basically when user clicks a specific function on admin page
+	 * changes the value of switcher which tells servlet which method to use
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-		response.getWriter().append("Served at: ").append(request.getContextPath());
-		try {
-			switch(request.getServletPath()) {
-			case "/newProd":
-				makeNewProd(request, response);
-				break;
-			}
-		} catch (SQLException exception) {
-			throw new ServletException(exception);
+		String switcher = request.getParameter("switcher");
+		if (switcher == "newProd") {
+			makeNewProd(request, response);
+		}
+		else if (switcher == "editInformation") {
+			showNewProd(request, response);
+		}
+		else if (switcher == "changeQuantity") {
+			
+		}
+		else if (switcher == "restockProducts") {
+	
+		}
+		else if (switcher == "monitor") {
+	
+		}
+		else if (switcher == "suspend") {
+	
+		}
+		else if (switcher == "reactivate") {
+	
 		}
 	}
 
@@ -64,13 +79,19 @@ public class AdminServlet extends HttpServlet {
         int theCategory = request.getParameter("categoryId");
         int theAdmin = request.getParameter("createdByAdminId");
 
-		if (theQuantity < 5){
+		if (theQuantity < 5){ // change the notice if its low stock
 			theNotice = "yes";
 		}
 
-		Product theProduct = new Product(theName, theInfo, thePrice, theCondition, theQuantity, theStatus, theDate, theNotice, theCategory, theAdmin);
-		ProductDao.newProduct(theProduct);
+		Product theProduct = new Product(0,theName, theInfo, thePrice, theCondition, theQuantity, theStatus, theDate, theNotice, theCategory, theAdmin);
+		ProductDao.newProduct(theProduct); // put the new product into the database
 		response.sendRedirect("admin.jsp"); // refresh page? and clears the form i hope..
 	}
-
+	
+	private void showProducts(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		List<Product> theProducts = ProductDao.selectAllProducts(); // get a list of all the products
+		request.setAttribute("theProducts", theProducts); // set attribute
+		RequestDispatcher send = request.getRequestDispatcher("admin.jsp"); // make an object to send to admin page
+		send.forward(request, response);
+	}
 }
