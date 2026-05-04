@@ -49,6 +49,7 @@ if (role == null || !role.equals("admin")) {
 			document.getElementById("suspend").style.display = "none";
 			document.getElementById("changeQuantity").style.display = "none";
 			document.getElementById("restockProducts").style.display = "none";
+			// changing this was redundant but i'll leave it
 		}
 	</script>
 

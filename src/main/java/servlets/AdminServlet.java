@@ -35,18 +35,50 @@ public class AdminServlet extends HttpServlet {
 	 * changes the value of switcher which tells servlet which method to use
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.sendRedirect("admin.jsp");
+		String switcher = request.getParameter("switcher");
+
+
+		if (switcher == "newProd") {
+			makeNewProd(request, response);
+		}
+
+
+		else if (switcher == "editInformation") {
+			showNewProd(request, response);
+
+		}
+
+
+		else if (switcher == "changeQuantity") {
+			
+		}
+
+
+		else if (switcher == "restockProducts") {
+
+		}
+
+
+		else if (switcher == "monitor") {
+
+		}
+
+
+		else if (switcher == "suspend") {
+
+		}
+
+
+		else if (switcher == "reactivate") {
+
+		}
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		try {
-			makeNewProd(request, response);
-		} catch (SQLException exception) {
-			throw new ServletException(exception);
-		}
+		doGet(request, response);
 	}
 	
 	private void makeNewProd(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
