@@ -17,7 +17,7 @@ public class ProductDao {
     		"INSERT INTO products(product_id, product_name, product_description, price, product_condition, quantity_available, product_status, date_added, low_stock_notice, category_id, created_by_admin_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 // DO NOT CHANGE THESE STATEMENTS THEY NEED PRODUCT ID PLEASE REFERENCE SCHEMA 
     
-    private final static String editProductStr = "UPDATE products set product_name = ?, product_description = ?, price = ?, product_condition = ?, quantity_available = ?, product_status = ?, low_stock_notice = ? WHERE product_id = ?;";
+    private final static String editProductStr = "UPDATE products SET product_name = ?, product_description = ?, price = ?, product_condition = ?, quantity_available = ?, product_status = ?, low_stock_notice = ? WHERE product_id = ?;";
     
     private final static String getProductsStr = "SELECT * FROM products;";
 

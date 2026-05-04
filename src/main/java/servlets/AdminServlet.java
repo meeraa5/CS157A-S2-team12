@@ -12,10 +12,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.RequestDispatcher;
 
+import dao.ActivityDao;
 import dao.ProductDao;
 import dao.RestockHistoryDao;
+import dao.UserDao;
+import util.Activity;
 import util.Product;
 import util.RestockHistory;
+import util.User;
 
 /**
  * Servlet implementation class AdminServlet
@@ -62,17 +66,28 @@ public class AdminServlet extends HttpServlet {
 
 
 		else if (switcher == "monitor") {
-
+			showActivity(request, response);
+		}
+		
+		else if (switcher == "restock") {
+			showRestockHistory(request, response);
 		}
 
 
 		else if (switcher == "suspend") {
-
+			showActiveUsers(request,response);
 		}
 
 
 		else if (switcher == "reactivate") {
-
+			showSuspendedUsers(request, response);
+		}
+		
+		else if (switcher == "reactivateCfm") {
+			reactivate(request, response);
+		}
+		else if (switcher == "suspendCfm") {
+			suspend(request, response);
 		}
 	}
 
@@ -113,8 +128,29 @@ public class AdminServlet extends HttpServlet {
 	}
 	
 	private void showRestockHistory(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		List<RestockHistory> theHistory = RestockHistoryDao.selectAllHistory(); // get a list of all the products
+		List<RestockHistory> theHistory = RestockHistoryDao.selectAllHistory(); // get a list of all the restock history
 		request.setAttribute("theHistory", theHistory); // set attribute
+		RequestDispatcher send = request.getRequestDispatcher("admin.jsp"); // make an object to send to admin page
+		send.forward(request, response);
+	}
+	
+	private void showActivity(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		List<Activity> logs = ActivityDao.selectAllLogs(); // get a list of all the logs
+		request.setAttribute("logs", logs); // set attribute
+		RequestDispatcher send = request.getRequestDispatcher("admin.jsp"); // make an object to send to admin page
+		send.forward(request, response);
+	}
+	
+	private void showSuspendedUsers(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		List<User> sus = UserDao.selectAllUsers("suspended"); // get a list of all the suspended users
+		request.setAttribute("sus", sus); // set attribute
+		RequestDispatcher send = request.getRequestDispatcher("admin.jsp"); // make an object to send to admin page
+		send.forward(request, response);
+	}
+	
+	private void showActiveUsers(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		List<User> sus = UserDao.selectAllUsers("active"); // get a list of all the suspended users
+		request.setAttribute("theActive", sus); // set attribute
 		RequestDispatcher send = request.getRequestDispatcher("admin.jsp"); // make an object to send to admin page
 		send.forward(request, response);
 	}
@@ -142,5 +178,19 @@ public class AdminServlet extends HttpServlet {
 	
 	private void deleteProduct(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 		int theID = Integer.parseInt(request.getParameter("id3"));
+		ProductDao.deleteProduct(theID);
+		response.sendRedirect("admin.jsp");
+	}
+	
+	private void reactivate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+		int userID = Integer.parseInt(request.getParameter("id4"));
+		UserDao.reactivateUser(userID);
+		response.sendRedirect("admin.jsp");
+	}
+	
+	private void suspend(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+		int userID = Integer.parseInt(request.getParameter("id5"));
+		UserDao.suspendUser(userID);
+		response.sendRedirect("admin.jsp");
 	}
 }
