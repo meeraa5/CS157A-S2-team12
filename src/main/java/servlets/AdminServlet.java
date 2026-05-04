@@ -54,6 +54,11 @@ public class AdminServlet extends HttpServlet {
 		}
 
 
+		else if (switcher == "delete") {
+			deleteProduct(request, response);
+		}
+
+
 		else if (switcher == "monitor") {
 
 		}
@@ -120,5 +125,9 @@ public class AdminServlet extends HttpServlet {
         Product edit = new Product(theID, theName, theInfo, thePrice, theCondition, theQuantity, theStatus, theNotice);
         ProductDao.editProduct(edit);
         response.sendRedirect("admin.jsp");
+	}
+	
+	private void deleteProduct(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+		int theID = Integer.parseInt(request.getParameter("id3"));
 	}
 }

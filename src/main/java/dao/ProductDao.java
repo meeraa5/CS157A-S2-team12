@@ -22,6 +22,8 @@ public class ProductDao {
     private final static String getProductsStr = "SELECT * FROM products;";
 
     private final static String getLatestIdStr = "SELECT MAX(product_id) FROM products;";
+    
+    private final static String deleteStr = "DELETE FROM products WHERE product_id = ?;";
 
     public static int getLatestId(){ // use for new products
         int theNum = 0;
@@ -153,6 +155,21 @@ public class ProductDao {
             
         } catch (SQLException e) {
         	e.printStackTrace();
+        }
+    }
+    
+    public static void deleteProduct(int id) throws SQLException{
+    	try {
+            Connection con = MySQLCon.getConnection();
+            PreparedStatement deleteProdPs = con.prepareStatement(deleteStr);
+            
+            deleteProdPs.setInt(1, id);
+            
+            deleteProdPs.executeUpdate();
+            con.close();
+            
+    	} catch (SQLException e) {
+         	e.printStackTrace();
         }
     }
 }

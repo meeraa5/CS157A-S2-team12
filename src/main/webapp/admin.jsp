@@ -52,25 +52,34 @@ if (role == null || !role.equals("admin")) {
 		
 		function changeProduct(id){
 			document.getElementById("editTable").style.display = "none"; // hide the table of products
-			var theForm = document.getElementById(id);
-			theForm.style.display = "block"; // show the edit form
+			var theForm = document.getElementById(id); // id of the specific form we want to see
+			theForm.style.display = "block"; // show the edit or delete confirm form
 			
 			var theProductName = document.getElementById("theName").value;
 			var theProductInfo = document.getElementById("theInfo").value;
 			var theProductPrice = document.getElementById("thePrice").value;
 			var theProductQuantity = document.getElementById("theQuantity").value;
-			var theProductId = document.getElementById("theID").value
+			var theProductId = document.getElementById("theID").value;
 			
-			document.getElementById("productName2").placeholder = theProductName;
-			document.getElementById("info2").placeholder = theProductInfo;
-			document.getElementById("price2").placeholder = theProductPrice;
-			document.getElementById("quantityAvail2").placeholder = theProductQuantity;
-			document.getElementById("id2").placeholder = theProductId;
-			// basically takes the product name, info, price, quantity from the java Product object 
-			// then puts as placeholder in the form 
+			if (id == "changeInfo") {
+				document.getElementById("productName2").placeholder = theProductName;
+				document.getElementById("info2").placeholder = theProductInfo;
+				document.getElementById("price2").placeholder = theProductPrice;
+				document.getElementById("quantityAvail2").placeholder = theProductQuantity;
+				document.getElementById("id2").placeholder = theProductId;
+				// basically takes the product name, info, price, quantity from the java Product object 
+				// then puts as placeholder in the form 
+				
+				document.getElementById("switcher").value = "editProduct";
+			}
+			else {
+				document.getElementById("switcher").value = "delete";
+				document.getElementById("id3").placeholder = theProductId;
+				document.getElementById("productName3").placeholder = theProductName;
+			}
 			
-			document.getElementById("switcher").value = "editProduct";
 		}
+
 	</script>
 	<input type="hidden" id = "switcher" name = "switcher" value="none"> <!-- tells AdminServlet what to use -->
 	<h2>Management Options</h2>
@@ -314,8 +323,8 @@ if (role == null || !role.equals("admin")) {
 								<input type="hidden" id="thePrice" name="thePrice" value="<%= product.getPrice() %>">
 								<input type="hidden" id="theQuantity" name="theQuantity" value="<%= product.getQuantityAvail() %>">
 								<input type="hidden" id="theID" name="theID" value="<%= product.getProductId() %>">
-								<a href="<%= request.getContextPath() %>/AdminServlet" id="changeInfo" onclick="changeProduct('changeInfoForm')">Info</a>
-								<a href="<%= request.getContextPath() %>/AdminServlet" id="delete">Delete</a>
+								<a href="#" id="changeInfo" onclick="changeProduct('changeInfoForm')">Info</a>
+								<a href="#" id="delete" onclick="changeProduct('deleteConfirm')">Delete</a>
 							</td>
 							
 						</tr>
@@ -324,7 +333,7 @@ if (role == null || !role.equals("admin")) {
 						} %>
 				</tbody>
 			</table>
-			<div id="changeInfoForm">
+			<div id="changeInfoForm" style = "display: none">
 				<form action="<%= request.getContextPath() %>/AdminServlet" method="post">
 					<fieldset>
 					<legend>
@@ -361,6 +370,24 @@ if (role == null || !role.equals("admin")) {
     					<option value="Inactive">Inactive</option>
   					</select>
   					<button type="submit">Change Product</button>
+  					</fieldset>
+				</form>
+			</div>
+			<div id="deleteConfirm" style="display:none">
+				<form action="<%= request.getContextPath() %>/AdminServlet" method="post">
+				<fieldset>
+					<legend>
+						<h2 class="admin-functions-headers">Confirm Deletion</h2>
+					</legend>
+					<label for="id3">ID:</label> <input type="text"
+						id="id3" name="id3" class="formStuff" readonly>
+					<label for="productName3">Product Name:</label> <input type="text"
+						id="productName3" name="productName3" class="formStuff" disabled>
+					<label for="yes">please type <b>yes</b> to confirm</label> <input type="text"
+						id="yes" name="yes" class="formStuff" pattern="[yY][eE][sS]" required> <!-- any variant of yes will work -->
+					<br>
+					<br> 
+  					<button type="submit">Delete</button>
   					</fieldset>
 				</form>
 			</div>
