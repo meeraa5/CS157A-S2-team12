@@ -64,12 +64,19 @@ public class CartServlet extends HttpServlet {
             
             if ("increment".equals(action)) {
 
-                String updateSql = "UPDATE cart_items SET quantity = quantity + 1 WHERE cart_id = ? AND product_id = ?";
+                String updateSql = "UPDATE cart_items ci " +
+                        "JOIN products p ON ci.product_id = p.product_id " +
+                        "SET ci.quantity = ci.quantity + 1 " +
+                        "WHERE ci.cart_id = ? AND ci.product_id = ? AND ci.quantity < p.quantity_available";
                 ps = con.prepareStatement(updateSql);
                 ps.setInt(1, cartId);
                 ps.setInt(2, productId);
-                ps.executeUpdate();
+                int updatedRows = ps.executeUpdate();
                 ps.close();
+                if (updatedRows == 0) {
+                    response.sendRedirect("cart.jsp?Error=No more inventory available for this product");
+                    return;
+                }
 
             } else if ("decrement".equals(action)) {
 

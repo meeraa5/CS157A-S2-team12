@@ -41,26 +41,20 @@ if (role == null || !role.equals("admin")) {
 		}
 
 		function hideAll() { // this is crude but oh well. hides all divs
-			monitor.style.display = "none";
-			newProd.style.display = "none";
-			editInformation.style.display = "none";
-			reactivate.style.display = "none";
-			suspend.style.display = "none";
-			changeQuantity.style.display = "none";
-			restockProducts.style.display = "none";
-		}
-		
-		function changeHeader(id){
-			if (id == 'editInformation') {
-				document.getElementById("swivel").innerHTML = "";
-			}
-			else if ()
+			document.getElementById("reports").style.display = "none";
+			document.getElementById("monitor").style.display = "none";
+			document.getElementById("newProd").style.display = "none";
+			document.getElementById("editInformation").style.display = "none";
+			document.getElementById("reactivate").style.display = "none";
+			document.getElementById("suspend").style.display = "none";
+			document.getElementById("changeQuantity").style.display = "none";
+			document.getElementById("restockProducts").style.display = "none";
 		}
 	</script>
-	
-	<input type="hidden" id = "switcher" name = "switcher" value="none"> <!-- tells AdminServlet what to use -->
+
 	<h2>Management Options</h2>
 	<ul>
+		<li><a href="#" onclick="toggleVisibility('reports')">Analytics and Reports</a></li>
 		<li><a href="#" onclick="toggleVisibility('newProd')">Create
 				New Product Listing</a></li>
 		<li><a href="#" onclick="toggleVisibility('editInformation')">Edit
@@ -89,6 +83,126 @@ if (role == null || !role.equals("admin")) {
 	<!-- samantha will do admin and admin servlet -->
 
 	<div id="adminFunctions" class="admin-functions">
+		<div id="reports" class="admin-functions-box">
+			<h2 class="admin-functions-headers">Analytics and Reports</h2>
+			<%
+			try (Connection reportCon = MySQLCon.getConnection()) {
+				int totalUsers = 0;
+				int totalProducts = 0;
+				int totalTransactions = 0;
+				double totalRevenue = 0;
+
+				try (PreparedStatement countUsers = reportCon.prepareStatement("SELECT COUNT(*) FROM users");
+					 ResultSet countUsersRs = countUsers.executeQuery()) {
+					if (countUsersRs.next()) {
+						totalUsers = countUsersRs.getInt(1);
+					}
+				}
+
+				try (PreparedStatement countProducts = reportCon.prepareStatement("SELECT COUNT(*) FROM products");
+					 ResultSet countProductsRs = countProducts.executeQuery()) {
+					if (countProductsRs.next()) {
+						totalProducts = countProductsRs.getInt(1);
+					}
+				}
+
+				try (PreparedStatement countOrders = reportCon.prepareStatement("SELECT COUNT(*), COALESCE(SUM(total_amount), 0) FROM orders WHERE order_status IN ('Paid', 'Completed')");
+					 ResultSet countOrdersRs = countOrders.executeQuery()) {
+					if (countOrdersRs.next()) {
+						totalTransactions = countOrdersRs.getInt(1);
+						totalRevenue = countOrdersRs.getDouble(2);
+					}
+				}
+			%>
+			<div class="report-grid">
+				<div class="report-card"><strong>Total Registered Users</strong><br><%= totalUsers %></div>
+				<div class="report-card"><strong>Total Products Listed</strong><br><%= totalProducts %></div>
+				<div class="report-card"><strong>Completed Transactions</strong><br><%= totalTransactions %></div>
+				<div class="report-card"><strong>Total Revenue</strong><br>$<%= String.format("%.2f", totalRevenue) %></div>
+			</div>
+
+			<h3>Monthly Revenue</h3>
+			<table class="data-table">
+				<tr><th>Month</th><th>Revenue</th></tr>
+				<%
+				try (PreparedStatement monthly = reportCon.prepareStatement(
+						"SELECT DATE_FORMAT(order_date, '%Y-%m') AS order_month, SUM(total_amount) AS revenue " +
+						"FROM orders WHERE order_status IN ('Paid', 'Completed') GROUP BY DATE_FORMAT(order_date, '%Y-%m') ORDER BY order_month DESC");
+					 ResultSet monthlyRs = monthly.executeQuery()) {
+					while (monthlyRs.next()) {
+				%>
+				<tr><td><%= monthlyRs.getString("order_month") %></td><td>$<%= monthlyRs.getBigDecimal("revenue") %></td></tr>
+				<%
+					}
+				}
+				%>
+			</table>
+
+			<h3>Most Purchased Products</h3>
+			<table class="data-table">
+				<tr><th>Product</th><th>Quantity Sold</th></tr>
+				<%
+				try (PreparedStatement topProducts = reportCon.prepareStatement(
+						"SELECT p.product_name, SUM(oi.quantity) AS quantity_sold " +
+						"FROM order_items oi JOIN products p ON oi.product_id = p.product_id " +
+						"GROUP BY p.product_id, p.product_name ORDER BY quantity_sold DESC LIMIT 5");
+					 ResultSet topProductsRs = topProducts.executeQuery()) {
+					while (topProductsRs.next()) {
+				%>
+				<tr><td><%= topProductsRs.getString("product_name") %></td><td><%= topProductsRs.getInt("quantity_sold") %></td></tr>
+				<%
+					}
+				}
+				%>
+			</table>
+
+			<h3>Least Purchased Products</h3>
+			<table class="data-table">
+				<tr><th>Product</th><th>Quantity Sold</th></tr>
+				<%
+				try (PreparedStatement lowProducts = reportCon.prepareStatement(
+						"SELECT p.product_name, COALESCE(SUM(oi.quantity), 0) AS quantity_sold " +
+						"FROM products p LEFT JOIN order_items oi ON p.product_id = oi.product_id " +
+						"GROUP BY p.product_id, p.product_name ORDER BY quantity_sold ASC, p.product_name ASC LIMIT 5");
+					 ResultSet lowProductsRs = lowProducts.executeQuery()) {
+					while (lowProductsRs.next()) {
+				%>
+				<tr><td><%= lowProductsRs.getString("product_name") %></td><td><%= lowProductsRs.getInt("quantity_sold") %></td></tr>
+				<%
+					}
+				}
+				%>
+			</table>
+
+			<h3>Low Inventory Alerts</h3>
+			<table class="data-table">
+				<tr><th>Product</th><th>Quantity Available</th><th>Status</th></tr>
+				<%
+				try (PreparedStatement lowInventory = reportCon.prepareStatement(
+						"SELECT product_name, quantity_available, product_status FROM products WHERE quantity_available < 5 ORDER BY quantity_available ASC");
+					 ResultSet lowInventoryRs = lowInventory.executeQuery()) {
+					while (lowInventoryRs.next()) {
+				%>
+				<tr>
+					<td><%= lowInventoryRs.getString("product_name") %></td>
+					<td><%= lowInventoryRs.getInt("quantity_available") %></td>
+					<td><%= lowInventoryRs.getString("product_status") %></td>
+				</tr>
+				<%
+					}
+				}
+				%>
+			</table>
+			<%
+			} catch (Exception e) {
+				e.printStackTrace();
+			%>
+			<p>Error loading analytics.</p>
+			<%
+			}
+			%>
+		</div>
+
 		<div id="newProd" class="admin-functions-box">
 			<form id="newProdForm" action="<%= request.getContextPath() %>/AdminServlet" method="post">
 				<fieldset>

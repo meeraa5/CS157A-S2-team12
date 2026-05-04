@@ -24,21 +24,20 @@ public class AuthServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        // SIGNUP
         if ("signup".equals(mode)) {
-            try {
-                Connection con = MySQLCon.getConnection();
+            if (email == null || !email.trim().toLowerCase().endsWith("@sjsu.edu")) {
+                response.sendRedirect("login.jsp?Error=Please use an @sjsu.edu email address");
+                return;
+            }
 
-                String insertSql = "INSERT INTO users (full_name, sjsu_email, password_hash) VALUES (?, ?, ?)";
-                PreparedStatement insertPs = con.prepareStatement(insertSql);
+            try (Connection con = MySQLCon.getConnection();
+                 PreparedStatement insertPs = con.prepareStatement(
+                         "INSERT INTO users (full_name, sjsu_email, password_hash, status) VALUES (?, ?, ?, 'Active')")) {
                 insertPs.setString(1, email);   // temporary full_name
                 insertPs.setString(2, email);
                 insertPs.setString(3, password);
 
                 insertPs.executeUpdate();
-
-                insertPs.close();
-                con.close();
 
                 response.sendRedirect("login.jsp?Success=Registered successfully");
             } catch (Exception e) {

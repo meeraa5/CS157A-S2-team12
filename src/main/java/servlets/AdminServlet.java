@@ -1,6 +1,7 @@
 package servlets;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -34,50 +35,32 @@ public class AdminServlet extends HttpServlet {
 	 * changes the value of switcher which tells servlet which method to use
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String switcher = request.getParameter("switcher");
-		if (switcher == "newProd") {
-			makeNewProd(request, response);
-		}
-		else if (switcher == "editInformation") {
-			showNewProd(request, response);
-		}
-		else if (switcher == "changeQuantity") {
-			
-		}
-		else if (switcher == "restockProducts") {
-	
-		}
-		else if (switcher == "monitor") {
-	
-		}
-		else if (switcher == "suspend") {
-	
-		}
-		else if (switcher == "reactivate") {
-	
-		}
+		response.sendRedirect("admin.jsp");
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-		doGet(request, response);
+		try {
+			makeNewProd(request, response);
+		} catch (SQLException exception) {
+			throw new ServletException(exception);
+		}
 	}
 	
-	private void makeNewProd(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void makeNewProd(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
 		// get the info from the site
 		String theName = request.getParameter("productName");
         String theInfo = request.getParameter("info");
-        float thePrice = request.getParameter("price");
+        float thePrice = Float.parseFloat(request.getParameter("price"));
         String theCondition = request.getParameter("condition");
-        int theQuantity = request.getParameter("quantityAvail");
+        int theQuantity = Integer.parseInt(request.getParameter("quantityAvail"));
         String theStatus = request.getParameter("productStatus");
         LocalDate theDate = LocalDate.now();
 		String theNotice = "no"; // low stock notice
-        int theCategory = request.getParameter("categoryId");
-        int theAdmin = request.getParameter("createdByAdminId");
+        int theCategory = Integer.parseInt(request.getParameter("categoryId"));
+        int theAdmin = Integer.parseInt(request.getParameter("createdByAdminId"));
 
 		if (theQuantity < 5){ // change the notice if its low stock
 			theNotice = "yes";

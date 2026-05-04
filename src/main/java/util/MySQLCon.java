@@ -5,23 +5,26 @@ import java.sql.*;
 public class MySQLCon {
 
     public static Connection getConnection() {
-        Connection con = null;
-
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
-            con = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/spartanexchange?useSSL=false&serverTimezone=UTC",
-                "root",
-                "11321132"
-            );
+            String url = getConfig("DB_URL", "jdbc:mysql://localhost:3306/spartanexchange?useSSL=false&serverTimezone=UTC");
+            String user = getConfig("DB_USER", "root");
+            String password = getConfig("DB_PASSWORD", "");
 
-            System.out.println("Connected!");
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            return DriverManager.getConnection(url, user, password);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("MySQL JDBC driver was not found. Add mysql-connector-j to Tomcat.", e);
+        } catch (SQLException e) {
+            throw new IllegalStateException("Unable to connect to MySQL. Check DB_URL, DB_USER, and DB_PASSWORD.", e);
         }
+    }
 
-        return con;
+    private static String getConfig(String key, String defaultValue) {
+        String value = System.getenv(key);
+        if (value == null || value.trim().isEmpty()) {
+            value = System.getProperty(key);
+        }
+        return value == null || value.trim().isEmpty() ? defaultValue : value;
     }
 }

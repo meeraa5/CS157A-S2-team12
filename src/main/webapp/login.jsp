@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Login/Sign UP </title>
-<link rel="stylesheet" href="<%= request.getContextPath() %>/css/styles.css">
+<link rel="stylesheet" href="<%= request.getContextPath() %>/styles.css">
 </head>
 <body>
 <div class= "login-container">
@@ -34,7 +34,7 @@ if (error !=null) {
 
 
  
-<form id="auth-form" action="<%= request.getContextPath() %>/AuthServlet" method="post" onsubmit="return validateForm()">Bu <!-- is that Bu supposed to be there? -->
+<form id="auth-form" action="<%= request.getContextPath() %>/AuthServlet" method="post" onsubmit="return validateForm()">
  <input type="hidden" id="mode" name="mode" value="login"> //User login or registration
   
 <label for="email">Email</label>
@@ -81,14 +81,14 @@ Do not have an account?
     		submitBtn.textContent="Login";
     		toggleText.innerHTML = `Do not have an account? <a href="#" onclick="toggleMode(); return false;">Sign up</a>`;
     		confirmContainer.style.display = "none";
-    		confirmPasswordInput.required.required=true;
+    		confirmPasswordInput.required = false;
             modeInput.value = "login";	
     	}else{
     		formTitle.textContent = "Sign UP";
             submitBtn.textContent = "Register Account";
             toggleText.innerHTML = `Already have an account? <a href="#" onclick="toggleMode(); return false;">Login</a>`;
     		confirmContainer.style.display="block";
-    		confirmPasswordInput.required=false;
+    		confirmPasswordInput.required=true;
     		modeInput.value= "signup"
     		
     	}
@@ -102,7 +102,7 @@ Do not have an account?
         	//Functionality for registration 
     	
     	//Ensures for SJSU email restriction
-    	if (!(email.endsWith("@sjsu.edu")|| email.endsWith("@my.sjsu.edu"))) {
+    	if (!email.endsWith("@sjsu.edu")) {
     		alert("Only with SJSU email addresses are allowed.");
     		return false;
     	

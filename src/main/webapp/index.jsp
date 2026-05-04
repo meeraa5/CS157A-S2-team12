@@ -47,6 +47,7 @@ if (search == null) {
 
     <nav class="nav-links">
         <a href="<%= request.getContextPath() %>/wishlist.jsp">Wishlist</a>
+        <a href="<%= request.getContextPath() %>/orders.jsp">Orders</a>
         <a href="#">Help</a>
         <a href="<%= request.getContextPath() %>/cart.jsp">Cart (0)</a>
     </nav>
@@ -103,6 +104,7 @@ try { //Main part where it connects to the database
     			<input type="hidden" name="product_id" value="<%= rs.getInt("product_id") %>">
     			<button type="submit">Add to Cart</button>
 				</form>
+                <p><a href="<%= request.getContextPath() %>/product_reviews.jsp?productId=<%= rs.getInt("product_id") %>">View Reviews</a></p>
             </div>
             
             //This displays one product for the current row of the results

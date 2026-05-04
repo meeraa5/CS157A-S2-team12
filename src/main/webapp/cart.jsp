@@ -19,6 +19,7 @@
 
 <nav class="nav-links">
     <a href="<%= request.getContextPath() %>/index.jsp">Home</a>
+    <a href="<%= request.getContextPath() %>/orders.jsp">Orders</a>
     <a href="<%= request.getContextPath() %>/login.jsp">Account</a>
     <a href="#">Help</a>
     <a href="<%= request.getContextPath() %>/cart.jsp">Cart</a>
@@ -47,6 +48,14 @@ int totalItems = 0;
 
     <section class="cart-left">
         <h2>Shopping Cart</h2>
+        <%
+        String error = request.getParameter("Error");
+        if (error != null) {
+        %>
+            <div class="message"><%= error %></div>
+        <%
+        }
+        %>
 
         <%
         try {
@@ -129,7 +138,9 @@ int totalItems = 0;
 
     <section class="cart-right">
         <h3>Subtotal: $<%= String.format("%.2f", total) %></h3>
-        <button class="checkout-btn">Proceed to Checkout</button>
+        <form action="<%= request.getContextPath() %>/checkout" method="post">
+            <button class="checkout-btn" type="submit" <%= totalItems == 0 ? "disabled" : "" %>>Proceed to Checkout</button>
+        </form>
     </section>
 
 </main>

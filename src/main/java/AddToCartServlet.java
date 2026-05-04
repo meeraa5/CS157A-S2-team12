@@ -36,6 +36,18 @@ public class AddToCartServlet extends HttpServlet {
         try {
             con = MySQLCon.getConnection();
 
+            String productSql = "SELECT quantity_available, product_status FROM products WHERE product_id = ?";
+            ps = con.prepareStatement(productSql);
+            ps.setInt(1, productId);
+            rs = ps.executeQuery();
+            if (!rs.next() || rs.getInt("quantity_available") <= 0 || !"Available".equals(rs.getString("product_status"))) {
+                response.sendRedirect("index.jsp?Error=Product is not available");
+                return;
+            }
+            int quantityAvailable = rs.getInt("quantity_available");
+            rs.close();
+            ps.close();
+
             int cartId;
 
             String findCartSql = "SELECT cart_id FROM cart WHERE user_id = ?";
@@ -77,6 +89,11 @@ public class AddToCartServlet extends HttpServlet {
                 int quantity = rs.getInt("quantity");
                 rs.close();
                 ps.close();
+
+                if (quantity >= quantityAvailable) {
+                    response.sendRedirect("cart.jsp?Error=No more inventory available for this product");
+                    return;
+                }
 
                 String updateSql = "UPDATE cart_items SET quantity = ? WHERE cart_item_id = ?";
                 ps = con.prepareStatement(updateSql);
