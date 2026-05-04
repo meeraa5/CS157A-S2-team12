@@ -36,34 +36,50 @@ if (role == null || !role.equals("admin")) {
 			var theDiv = document.getElementById(id);
 			if (theDiv.style.display == "none" || theDiv.style.display == "") {
 				theDiv.style.display = "block";
-				switcher.value = id;
+				switcher.value = id; // changes depending on what adminservlet should do next
 			}
 		}
 
 		function hideAll() { // this is crude but oh well. hides all divs
-			document.getElementById("reports").style.display = "none";
+			document.getElementById("reports").style.display = "none"; // oh i see you added your div here
 			document.getElementById("monitor").style.display = "none";
 			document.getElementById("newProd").style.display = "none";
 			document.getElementById("editInformation").style.display = "none";
 			document.getElementById("reactivate").style.display = "none";
 			document.getElementById("suspend").style.display = "none";
-			document.getElementById("changeQuantity").style.display = "none";
-			document.getElementById("restockProducts").style.display = "none";
 			// changing this was redundant but i'll leave it
 		}
+		
+		function changeProduct(id){
+			document.getElementById("editTable").style.display = "none"; // hide the table of products
+			var theForm = document.getElementById(id);
+			theForm.style.display = "block"; // show the edit form
+			
+			var theProductName = document.getElementById("theName").value;
+			var theProductInfo = document.getElementById("theInfo").value;
+			var theProductPrice = document.getElementById("thePrice").value;
+			var theProductQuantity = document.getElementById("theQuantity").value;
+			var theProductId = document.getElementById("theID").value
+			
+			document.getElementById("productName2").placeholder = theProductName;
+			document.getElementById("info2").placeholder = theProductInfo;
+			document.getElementById("price2").placeholder = theProductPrice;
+			document.getElementById("quantityAvail2").placeholder = theProductQuantity;
+			document.getElementById("id2").placeholder = theProductId;
+			// basically takes the product name, info, price, quantity from the java Product object 
+			// then puts as placeholder in the form 
+			
+			document.getElementById("switcher").value = "editProduct";
+		}
 	</script>
-
+	<input type="hidden" id = "switcher" name = "switcher" value="none"> <!-- tells AdminServlet what to use -->
 	<h2>Management Options</h2>
 	<ul>
 		<li><a href="#" onclick="toggleVisibility('reports')">Analytics and Reports</a></li>
 		<li><a href="#" onclick="toggleVisibility('newProd')">Create
 				New Product Listing</a></li>
 		<li><a href="#" onclick="toggleVisibility('editInformation')">Edit
-				Product Information</a></li>
-		<li><a href="#" onclick="toggleVisibility('changeQuantity')">Adjust
-				Inventory Quantities</a></li>
-		<li><a href="#" onclick="toggleVisibility('restockProducts')">Restock
-				Products</a></li>
+				Product Information, Adjust Inventory Quantity, Restock</a></li>
 
 	</ul>
 
@@ -82,6 +98,7 @@ if (role == null || !role.equals("admin")) {
 		</ul>
 	</div>
 	<!-- samantha will do admin and admin servlet -->
+	<!-- meera did reports div -->
 
 	<div id="adminFunctions" class="admin-functions">
 		<div id="reports" class="admin-functions-box">
@@ -269,7 +286,8 @@ if (role == null || !role.equals("admin")) {
             			<th>Date</th>
             			<th>Low Stock?</th>
             			<th>Category ID</th>
-            			<th>Created by:</th>
+            			<th>Admin ID</th>
+            			<th>Change</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -291,8 +309,13 @@ if (role == null || !role.equals("admin")) {
 							<td><%= product.getCategoryId() %></td>
 							<td><%= product.getCreatedByAdminId() %></td>
 							<td>
-								<a href="<%= request.getContextPath() %>/AdminServlet" id="changeQuantity"></a>
-								<a href="<%= request.getContextPath() %>/AdminServlet"></a>
+								<input type="hidden" id="theName" name="theName" value="<%= product.getProductName() %>">
+								<input type="hidden" id="theInfo" name="theInfo" value="<%= product.getInfo() %>">
+								<input type="hidden" id="thePrice" name="thePrice" value="<%= product.getPrice() %>">
+								<input type="hidden" id="theQuantity" name="theQuantity" value="<%= product.getQuantityAvail() %>">
+								<input type="hidden" id="theID" name="theID" value="<%= product.getProductId() %>">
+								<a href="<%= request.getContextPath() %>/AdminServlet" id="changeInfo" onclick="changeProduct('changeInfoForm')">Info</a>
+								<a href="<%= request.getContextPath() %>/AdminServlet" id="delete">Delete</a>
 							</td>
 							
 						</tr>
@@ -301,15 +324,48 @@ if (role == null || !role.equals("admin")) {
 						} %>
 				</tbody>
 			</table>
+			<div id="changeInfoForm">
+				<form action="<%= request.getContextPath() %>/AdminServlet" method="post">
+					<fieldset>
+					<legend>
+						<h2 class="admin-functions-headers">Edit Listing</h2>
+					</legend>
+					<label for="id2">ID:</label> <input type="text"
+						id="id2" name="id2" class="formStuff" readonly>
+					<label for="productName2">Product Name:</label> <input type="text"
+						id="productName2" name="productName2" class="formStuff" required>
+					<br>
+					<br> <label for="info2">Information:</label><br>
+					<textarea id="info2" name="info2" class="formStuff" required> </textarea>
+					<br>
+					<br> <label for="price2">Price:</label> <input type="text"
+						id="price2" name="price2" class="formStuff" required> 
+					<br>
+					<br> <label for="condition2">Condition:</label> 
+					<select name="condition2" id="condition2" required>
+    					<option value="New">New</option>
+    					<option value="Like New">Like New</option>
+    					<option value="Good">Good</option>
+    					<option value="Fair">Fair</option>
+    					<option value="Used">Used</option>
+  					</select> 
+					<br>
+					<br> <label for="quantityAvail2">Quantity:</label> <input
+						type="text" id="quantityAvail2" name="quantityAvail2"
+						class="formStuff" required> 
+					<br>
+					<br> <label for="productStatus2">Status:</label> 
+					<select name="productStatus2" id="productStatus2" required>
+    					<option value="Available" selected>Available</option>
+    					<option value="Out_of_Stock">Out of Stock</option>
+    					<option value="Inactive">Inactive</option>
+  					</select>
+  					<button type="submit">Change Product</button>
+  					</fieldset>
+				</form>
+			</div>
 		</div>
 
-		<div id="changeQuantity" class="admin-functions-box">
-			<h2 class="admin-functions-headers">Adjust Inventory Quantities</h2>
-		</div>
-
-		<div id="restockProducts" class="admin-functions-box">
-			<h2 class="admin-functions-headers">Restock Products</h2>
-		</div>
 
 		<div id="monitor" class="admin-functions-box">
 			<h2 class="admin-functions-headers">Monitor Users</h2>

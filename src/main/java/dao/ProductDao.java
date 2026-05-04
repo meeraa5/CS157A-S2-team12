@@ -17,7 +17,7 @@ public class ProductDao {
     		"INSERT INTO products(product_id, product_name, product_description, price, product_condition, quantity_available, product_status, date_added, low_stock_notice, category_id, created_by_admin_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 // DO NOT CHANGE THESE STATEMENTS THEY NEED PRODUCT ID PLEASE REFERENCE SCHEMA 
     
-    private final static String editProductStr = "";
+    private final static String editProductStr = "UPDATE products set product_name = ?, product_description = ?, price = ?, product_condition = ?, quantity_available = ?, product_status = ?, low_stock_notice = ? WHERE product_id = ?;";
     
     private final static String getProductsStr = "SELECT * FROM products;";
 
@@ -117,5 +117,42 @@ public class ProductDao {
 			e.printStackTrace();
 		}
     	return products;
+    }
+    
+    public static void editProduct(Product prod) throws SQLException {
+    	try {
+            Connection con = MySQLCon.getConnection();
+            PreparedStatement editProdPs = con.prepareStatement(editProductStr);
+
+            // change these 
+            editProdPs.setString(1, prod.getProductName());
+
+
+            editProdPs.setString(2, prod.getInfo());
+
+
+            editProdPs.setFloat(3, prod.getPrice());
+
+
+            editProdPs.setString(4, prod.getCondition());
+
+
+            editProdPs.setInt(5, prod.getQuantityAvail());
+
+
+            editProdPs.setString(6, prod.getProductStatus());
+
+
+            editProdPs.setString(7, prod.getLowStockNotice());
+            
+            editProdPs.setInt(8, prod.getProductId()); // where product is this
+
+            
+            editProdPs.executeUpdate();
+            con.close();
+            
+        } catch (SQLException e) {
+        	e.printStackTrace();
+        }
     }
 }

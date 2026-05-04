@@ -44,6 +44,27 @@ public class Product {
 		this.createdByAdminId =  createdByAdminId;
 
 	}
+	
+	public Product( // use for updating products yippeee
+			int productId,
+			String productName,
+			String info, 
+			float price,
+			String condition,
+			int quantityAvail,
+			String productStatus,
+			String lowStockNotice
+			) {
+		this.productId = productId;
+		this.productName = productName;
+		this.info = info;
+		this.price = price;
+		this.condition = condition;
+		this.quantityAvail = quantityAvail;
+		this.productStatus = productStatus;
+		this.lowStockNotice = lowStockNotice;
+	}
+	
 
 	
 	// getters and setters to edit products

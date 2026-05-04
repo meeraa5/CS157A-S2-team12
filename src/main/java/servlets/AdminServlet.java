@@ -43,19 +43,14 @@ public class AdminServlet extends HttpServlet {
 		}
 
 
-		else if (switcher == "editInformation") {
+		else if (switcher == "editInformation") { // value is edit information but its mainly to show the products oops
 			showNewProd(request, response);
 
 		}
 
 
-		else if (switcher == "changeQuantity") {
-			
-		}
-
-
-		else if (switcher == "restockProducts") {
-
+		else if (switcher == "editProduct") { // real edit product method
+			editProduct(request, response);
 		}
 
 
@@ -108,5 +103,22 @@ public class AdminServlet extends HttpServlet {
 		request.setAttribute("theProducts", theProducts); // set attribute
 		RequestDispatcher send = request.getRequestDispatcher("admin.jsp"); // make an object to send to admin page
 		send.forward(request, response);
+	}
+	
+	private void editProduct(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+		int theID = Integer.parseInt(request.getParameter("id2"));
+		String theName = request.getParameter("productName2");
+        String theInfo = request.getParameter("info2");
+        float thePrice = Float.parseFloat(request.getParameter("price2"));
+        String theCondition = request.getParameter("condition2");
+        int theQuantity = Integer.parseInt(request.getParameter("quantityAvail2"));
+        String theStatus = request.getParameter("productStatus2");
+        String theNotice = "no"; // low stock notice
+        if (theQuantity < 5){ // change the notice if its low stock
+			theNotice = "yes";
+		}
+        Product edit = new Product(theID, theName, theInfo, thePrice, theCondition, theQuantity, theStatus, theNotice);
+        ProductDao.editProduct(edit);
+        response.sendRedirect("admin.jsp");
 	}
 }
