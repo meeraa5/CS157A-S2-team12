@@ -1,9 +1,12 @@
+package util;
+
 import java.time.LocalDate;
+
 public class Product {
 	private int productId;
 	private String productName;
 	private String info;
-	private int price;
+	private float price;
 	private String condition;
 	private int quantityAvail;
 	private String productStatus;
@@ -16,9 +19,10 @@ public class Product {
 	}
 
 	public Product(
-			int productId,
+			//int productId,
 			String productName,
-			String info, int price,
+			String info, 
+			float price,
 			String condition,
 			int quantityAvail,
 			String productStatus,
@@ -28,6 +32,33 @@ public class Product {
 			int createdByAdminId
 			) { // i hate when parameters are like this but it's easier to see
 		// create product entity to easily (at least i hope so) create and delete products
+		//this.productId = productId;
+		this.productName = productName;
+		this.info = info;
+		this.price = price;
+		this.condition = condition;
+		this.quantityAvail = quantityAvail;
+		this.productStatus = productStatus;
+		this.dateAdded = dateAdded;
+		this.lowStockNotice = lowStockNotice;
+		this.categoryId = categoryId;
+		this.createdByAdminId =  createdByAdminId;
+
+	}
+	
+	public Product( // welp
+			int productId,
+			String productName,
+			String info, 
+			float price,
+			String condition,
+			int quantityAvail,
+			String productStatus,
+			LocalDate dateAdded,
+			String lowStockNotice, 
+			int categoryId,
+			int createdByAdminId
+			) { 
 		this.productId = productId;
 		this.productName = productName;
 		this.info = info;
@@ -43,16 +74,7 @@ public class Product {
 	}
 	
 	// getters and setters to edit products
-	
-	
 
-	public int getProductId() {
-		return productId;
-	}
-
-	public void setProductId(int productId) {
-		this.productId = productId;
-	}
 
 	public String getProductName() {
 		return productName;
@@ -70,11 +92,11 @@ public class Product {
 		this.info = info;
 	}
 
-	public int getPrice() {
+	public float getPrice() {
 		return price;
 	}
 
-	public void setPrice(int price) {
+	public void setPrice(float price) {
 		this.price = price;
 	}
 
@@ -102,14 +124,6 @@ public class Product {
 		this.productStatus = productStatus;
 	}
 
-	public LocalDate getDateAdded() {
-		return dateAdded;
-	}
-
-	public void setDateAdded(LocalDate dateAdded) {
-		this.dateAdded = dateAdded;
-	}
-
 	public String getLowStockNotice() {
 		return lowStockNotice;
 	}
@@ -132,6 +146,22 @@ public class Product {
 
 	public void setCreatedByAdminId(int createdByAdminId) {
 		this.createdByAdminId = createdByAdminId;
+	}
+
+	public LocalDate getDateAdded() {
+		return dateAdded;
+	}
+
+	public void setDateAdded(LocalDate dateAdded) {
+		this.dateAdded = dateAdded;
+	}
+
+	public int getProductId() {
+		return productId;
+	}
+
+	public void setProductId(int productId) {
+		this.productId = productId;
 	}
 	
 	

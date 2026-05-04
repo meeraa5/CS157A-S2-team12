@@ -101,7 +101,7 @@ if (role == null || !role.equals("admin")) {
 
 	<div id="adminFunctions" class="admin-functions">
 		<div id="newProd" class="admin-functions-box">
-			<form id="newProdForm" action="/newProd" method="post">
+			<form id="newProdForm" action="<%= request.getContextPath() %>/AdminServlet" method="post">
 				<fieldset>
 					<legend>
 						<h2 class="admin-functions-headers">Create New Listing</h2>

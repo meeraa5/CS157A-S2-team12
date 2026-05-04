@@ -166,7 +166,7 @@ CREATE TABLE `products` (
   `quantity_available` int NOT NULL DEFAULT '0',
   `product_status` enum('Available','Out_of_Stock','Inactive') NOT NULL DEFAULT 'Available',
   `date_added` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `low_stock_notice` int NOT NULL DEFAULT '5',
+  `low_stock_notice` varchar(3) NOT NULL, -- changing from int to a string, when using it will be yes if quantity < 5
   `category_id` int NOT NULL,
   `created_by_admin_id` int DEFAULT NULL,
   PRIMARY KEY (`product_id`),
@@ -174,7 +174,7 @@ CREATE TABLE `products` (
   KEY `created_by_admin_id` (`created_by_admin_id`),
   CONSTRAINT `products_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `products_ibfk_2` FOREIGN KEY (`created_by_admin_id`) REFERENCES `administrators` (`admin_id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `chk_low_stock_notice` CHECK ((`low_stock_notice` >= 0)),
+  -- CONSTRAINT `chk_low_stock_notice` CHECK ((`low_stock_notice` >= 0)),
   CONSTRAINT `chk_price` CHECK ((`price` >= 0)),
   CONSTRAINT `chk_quantity_available` CHECK ((`quantity_available` >= 0))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
