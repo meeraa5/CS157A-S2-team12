@@ -12,7 +12,6 @@ import util.MySQLCon;
 import util.RestockHistory;
 
 public class RestockHistoryDao {
-    private final static String getRestockHistoryStr = "SELECT * FROM restock_history;";
     private final static String newHistoryStr = 
     		"INSERT INTO restock_history(restock_id, product_id, admin_id, quantity_added, restock_id) VALUES (?, ?, ?, ?, ?,);";   
     private final static String getLatestHist = "SELECT MAX(restock_id) FROM restock_history;";
@@ -26,10 +25,7 @@ public class RestockHistoryDao {
 	        PreparedStatement latestIdPs;
 			latestIdPs = con.prepareStatement(getLatestHist);
 			ResultSet rs = latestIdPs.executeQuery();
-	        if (rs.wasNull()){
-	            theNum = 1;
-	        }
-	        else {
+	        if (rs.getNext()){
 	            theNum = rs.getInt("restock_id") + 1;
 	        }
 		} catch (SQLException e) {
@@ -82,26 +78,4 @@ public class RestockHistoryDao {
         }
     }
     
-    public static List<RestockHistory> selectAllHistory(){
-    	List<RestockHistory> allHistory = new ArrayList<>();
-    	try {
-    		Connection con = MySQLCon.getConnection();
-            PreparedStatement listHistPs = con.prepareStatement(getRestockHistoryStr);
-            ResultSet rs = listHistPs.executeQuery();
-            
-            while (rs.next()) {
-            	int theId = rs.getInt("restock_id");
-                int theProdId = rs.getInt("product_id");
-                int theAdmin = rs.getInt("admin_id");
-                int theQuantity = rs.getInt("quantity_added");
-                LocalDate theDate = rs.getDate("restock_date").toLocalDate();
-                
-        		RestockHistory theHistory = new RestockHistory(theId, theProdId, theAdmin, theQuantity, theDate);
-        		allHistory.add(theHistory);
-            }
-    	} catch (SQLException e) {
-			e.printStackTrace();
-		}
-    	return allHistory;
-    }
 }

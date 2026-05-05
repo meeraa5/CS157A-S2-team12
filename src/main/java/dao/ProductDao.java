@@ -18,8 +18,6 @@ public class ProductDao {
 // DO NOT CHANGE THESE STATEMENTS THEY NEED PRODUCT ID PLEASE REFERENCE SCHEMA 
     
     private final static String editProductStr = "UPDATE products SET product_name = ?, product_description = ?, price = ?, product_condition = ?, quantity_available = ?, product_status = ?, low_stock_notice = ? WHERE product_id = ?;";
-    
-    private final static String getProductsStr = "SELECT * FROM products;";
 
     private final static String getLatestIdStr = "SELECT MAX(product_id) FROM products;";
     
@@ -33,12 +31,11 @@ public class ProductDao {
 	        PreparedStatement latestIdPs;
 			latestIdPs = con.prepareStatement(getLatestIdStr);
 			ResultSet rs = latestIdPs.executeQuery();
-			/*
-			 * if (rs.wasNull()){ theNum = 1; } else {
-			 * 
-			 * }
-			 */
-	        theNum = rs.getInt("product_id") + 1;
+			
+	        if (rs.getNext()) {
+	        	theNum = rs.getInt("product_id") + 1;
+	        }
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -93,34 +90,6 @@ public class ProductDao {
         }
         
     } 
-    
-    public static List<Product> selectAllProducts(){
-    	List<Product> products = new ArrayList<>();
-    	try {
-    		Connection con = MySQLCon.getConnection();
-            PreparedStatement listProdPs = con.prepareStatement(getProductsStr);
-            ResultSet rs = listProdPs.executeQuery();
-            while (rs.next()) {
-            	int theId = rs.getInt("product_id");
-                String theName = rs.getString("product_name");
-                String theInfo = rs.getString("product_description");
-                float thePrice = rs.getFloat("price");
-                String theCondition = rs.getString("product_condition");
-                int theQuantity = rs.getInt("quantity_available");
-                String theStatus = rs.getString("product_status");
-                LocalDate theDate = rs.getDate("date_added").toLocalDate();
-                String theNotice = rs.getString("low_stock_notice");
-                int theCategory = rs.getInt("category_id");
-                int theAdmin = rs.getInt("created_by_admin_id");
-        		Product theProduct = new Product(theId,theName, theInfo, thePrice, theCondition, theQuantity, theStatus, theDate, theNotice, theCategory, theAdmin);
-        		products.add(theProduct);
-            }
-    	} catch (SQLException e) {
-			e.printStackTrace();
-		}
-    	return products;
-    }
-    
     
     
     public static void editProduct(Product prod) throws SQLException {
