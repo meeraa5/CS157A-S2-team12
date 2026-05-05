@@ -32,7 +32,7 @@ public class WishlistServlet extends HttpServlet {
         ResultSet rs = null;
 
         try {
-            con = MySQLCon.getConnection();
+            con = MySQLCon.getConnection(); //THe sql query joins wishlist items with products similar to how cart item connects to products
 
             String sql = "SELECT w.wishlist_item_id, w.user_id, p.product_id, p.product_name, " +
                          "p.product_description, p.price, p.product_condition " +
@@ -40,7 +40,7 @@ public class WishlistServlet extends HttpServlet {
                          "JOIN products p ON w.product_id = p.product_id " +
                          "WHERE w.user_id = ? " +
                          "ORDER BY w.added_date DESC";
-
+//Details like name, price description and condition can be displayed
             stmt = con.prepareStatement(sql);
             stmt.setInt(1, userId);
             rs = stmt.executeQuery();
@@ -57,25 +57,36 @@ public class WishlistServlet extends HttpServlet {
                 wishlistItems.add(row);
             }
 
-            request.setAttribute("wishlistItems", wishlistItems);
+            request.setAttribute("wishlistItems", wishlistItems); //Attached to request using this so wishlist.jsp can display 
 
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("dbError", "Database error loading wishlist: " + e.getMessage());
             request.setAttribute("wishlistItems", wishlistItems);
-        } finally {
+        } finally { //Finally block closes the database resource to prevent connection leaks 
             try { if (rs != null) rs.close(); } catch (Exception ignored) {}
             try { if (stmt != null) stmt.close(); } catch (Exception ignored) {}
             try { if (con != null) con.close(); } catch (Exception ignored) {}
         }
 
-        request.getRequestDispatcher("/wishlist.jsp").forward(request, response);
+        request.getRequestDispatcher("/wishlist.jsp").forward(request, response); //Forwarded to frontend wishlist,jsp where the wishlist pgae will retrieve the data
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    
+    
+    
+    @Override 
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) //this helps handles wishlist form actions after confirming user is logged in 
             throws ServletException, IOException {
-
+//Helps ensure parameter and calls either Additem to add product or remove item to delete and remove product from wish list
+    	
+    	
+    	
+    	
+    	//THe method connects to the database and check weather the product is aldready in the user's wishlist
+    	//If product is not aldready saved it would insert a new wishlist record with current date
+    	 	
+    	
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user_id") == null) {
             response.sendRedirect(request.getContextPath() + "/login.jsp?Error=Please log in first");
@@ -93,6 +104,13 @@ public class WishlistServlet extends HttpServlet {
         }
     }
 
+    
+    
+    
+    
+    
+    //Handle adding a selected product to user wishlist
+   //It also helps check if the product is aldready in the wishlist to avoid duplicates in the wishlist
     private void addItem(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
 
@@ -134,7 +152,7 @@ public class WishlistServlet extends HttpServlet {
                 insertStmt.executeUpdate();
             }
 
-        } catch (Exception e) {
+        } catch (Exception e) { //Handles errors while finally does the same goal which is close database to prevent leaks 
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/WishlistServlet?Error=" +
                     java.net.URLEncoder.encode(e.getMessage(), "UTF-8"));
@@ -149,6 +167,19 @@ public class WishlistServlet extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/WishlistServlet");
     }
 
+    
+    
+    
+    
+    
+    
+    
+    
+    //Just handles removing selected item from users wishlist 
+    //Retreives logged user ID and the wishlist item id from the request and later validates the input and executes the sql query delete to remove the item
+    //It would redirect it back to the wishlist page to reflect the updated data
+    
+    
     private void removeItem(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
 
