@@ -110,6 +110,18 @@ body {
     color: #ffd84d;
 }
 
+.nav-button {
+    background: #f3c600;
+    border-radius: 8px;
+    color: #111 !important;
+    padding: 9px 14px;
+}
+
+.nav-button:hover {
+    background: #ddb400;
+    color: #111 !important;
+}
+
 .user-email {
     font-weight: 500;
 }

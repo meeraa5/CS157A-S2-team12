@@ -27,6 +27,17 @@ public class AuthServlet extends HttpServlet { //Helps ensures that login/signup
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String action = request.getParameter("action");
+
+        if ("logout".equalsIgnoreCase(action)) {
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.invalidate();
+            }
+            response.sendRedirect(request.getContextPath() + "/login.jsp?Success=" + enc("Logged out successfully"));
+            return;
+        }
+
         response.sendRedirect(request.getContextPath() + "/login.jsp");
     }
     @Override

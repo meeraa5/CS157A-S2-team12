@@ -25,10 +25,17 @@ if (role == null || !role.equals("admin")) {
 </head>
 <body>
 
-	<div class="navbar" style="display: block;">
-		<h1>Admin Dashboard</h1>
-		<p>Welcome, Administrator.</p>
-	</div>
+	<header class="navbar">
+		<div>
+			<h1>Admin Dashboard</h1>
+			<p>Welcome, Administrator.</p>
+		</div>
+
+		<nav class="nav-links">
+			<a href="<%= request.getContextPath() %>/index.jsp" class="nav-button">Home</a>
+			<a href="<%= request.getContextPath() %>/AuthServlet?action=logout" class="nav-button">Logout</a>
+		</nav>
+	</header>
 
 	<script>
 		function toggleVisibility(id) {
