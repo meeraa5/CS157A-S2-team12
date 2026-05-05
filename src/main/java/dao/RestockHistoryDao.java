@@ -12,70 +12,70 @@ import util.MySQLCon;
 import util.RestockHistory;
 
 public class RestockHistoryDao {
-    private final static String newHistoryStr = 
-    		"INSERT INTO restock_history(restock_id, product_id, admin_id, quantity_added, restock_id) VALUES (?, ?, ?, ?, ?,);";   
-    private final static String getLatestHist = "SELECT MAX(restock_id) FROM restock_history;";
-    private final static String getAdmin = "SELECT created_by_admin_id FROM products WHERE product_id = ?";
-    
-    public static int getLatestId(){ // use for new restock
-        int theNum = 0;
-        
-		try {
-			Connection con = MySQLCon.getConnection();
-	        PreparedStatement latestIdPs;
-			latestIdPs = con.prepareStatement(getLatestHist);
-			ResultSet rs = latestIdPs.executeQuery();
-	        if (rs.getNext()){
-	            theNum = rs.getInt("restock_id") + 1;
-	        }
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-        return theNum;
-    }
-    
-    public static int getAdminId(int prod_id){ // use for new restock
-        int theNum = 0;
-        
-		try {
-			Connection con = MySQLCon.getConnection();
-	        PreparedStatement adminIdPs;
-			adminIdPs = con.prepareStatement(getAdmin);
-			adminIdPs.setInt(1, prod_id);
-			
-			ResultSet rs = adminIdPs.executeQuery();
-			
-	        theNum = rs.getInt("created_by_admin_id");
-	        con.close();
-	        
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-        return theNum;
-    }
-    
-    public static void newHistory(RestockHistory hist) throws SQLException {
-    	try {
-            Connection con = MySQLCon.getConnection();
-            PreparedStatement newHistPs = con.prepareStatement(newHistoryStr);
-            
-            newHistPs.setInt(1, getLatestId());
-            hist.setRestockId(getLatestId()); // set the id
-            
-            newHistPs.setInt(2, hist.getResProductId());
-            newHistPs.setInt(3, getAdminId(hist.getResProductId()));
-            hist.setResAdminId(getAdminId(hist.getResProductId())); // set admin id
-            
-            newHistPs.setInt(4, hist.getResQuantityAdded());
-            
-            newHistPs.setDate(5, java.sql.Date.valueOf(hist.getRestockDate()));
-            newHistPs.executeUpdate();
+
+	private static final String newHistoryStr =
+			"INSERT INTO restock_history (restock_id, product_id, admin_id, quantity_added, restock_date) VALUES (?, ?, ?, ?, ?)";
+
+	private static final String getAdmin =
+			"SELECT created_by_admin_id FROM products WHERE product_id = ?";
+	
+	private static final String getLatestIdStr = 
+			"SELECT MAX(restock_id) FROM restock_history;";
+
+
+	public static int getLatestResId(){ 
+        int theNum = 1;
+		try (Connection con = MySQLCon.getConnection();
+				PreparedStatement latestIdPs = con.prepareStatement(getLatestIdStr);
+				ResultSet rs = latestIdPs.executeQuery()) {
+	        if (rs.next()) {
+	        	int max = rs.getInt(1);
+	        	theNum = max + 1;
             con.close();
-            
-            
-    	} catch (SQLException e) {
-        	e.printStackTrace();
+            latestIdPs.close();
+            rs.close();
+	        }
         }
-    }
-    
+		 catch (SQLException e) {
+			e.printStackTrace();
+		}
+        return theNum;
+	}
+	
+	public static int getAdminId(int prodId) {
+		try (Connection con = MySQLCon.getConnection();
+				PreparedStatement ps = con.prepareStatement(getAdmin)) {
+			
+			ps.setInt(1, prodId);
+			
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					int adminId = rs.getInt("created_by_admin_id");
+					if (!rs.wasNull()) {
+						return adminId;
+					}
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	public static void newHistory(RestockHistory hist) throws SQLException {
+		int adminId = getAdminId(hist.getResProductId());
+		if (adminId <= 0) {
+			throw new SQLException("Cannot record restock: no admin_id for product " + hist.getResProductId());
+		}
+		try (Connection con = MySQLCon.getConnection();
+				PreparedStatement ps = con.prepareStatement(newHistoryStr)) {
+			ps.setInt(1, getLatestResId());
+			ps.setInt(2, hist.getResProductId());
+			ps.setInt(3, adminId);
+			ps.setInt(4, hist.getResQuantityAdded());
+			ps.setDate(5, java.sql.Date.valueOf(hist.getRestockDate()));
+			ps.executeUpdate();
+			
+		}
+	}
 }

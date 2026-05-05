@@ -3,10 +3,7 @@ package dao;
 import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+
 
 import util.MySQLCon;
 import util.User;
@@ -17,13 +14,15 @@ public class UserDao {
 	
     
     public static void reactivateUser(int id) throws SQLException { // take in user id
-    	try {
-            Connection con = MySQLCon.getConnection();
-            PreparedStatement reactivateProdPs = con.prepareStatement(reactivate); // switch status to Active based on user id
+    	try
+            (Connection con = MySQLCon.getConnection();
+            PreparedStatement reactivateProdPs = con.prepareStatement(reactivate);){ // switch status to Active based on user id
             
             reactivateProdPs.setInt(1, id);
             
             reactivateProdPs.executeUpdate();
+            
+            reactivateProdPs.close();
             con.close();
             
     	} catch (SQLException e) {
@@ -32,13 +31,15 @@ public class UserDao {
     }
     
     public static void suspendUser(int id) throws SQLException { // yes i know i couldve made it in the same method as above .. sue me...
-    	try {
-            Connection con = MySQLCon.getConnection();
-            PreparedStatement suspendProdPs = con.prepareStatement(suspend);
+    	try
+            (Connection con = MySQLCon.getConnection();
+            PreparedStatement suspendProdPs = con.prepareStatement(suspend);){
             
             suspendProdPs.setInt(1, id);
             
             suspendProdPs.executeUpdate();
+            
+            suspendProdPs.close();
             con.close();
             
     	} catch (SQLException e) {

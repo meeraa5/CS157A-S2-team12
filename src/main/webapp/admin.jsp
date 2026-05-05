@@ -46,7 +46,6 @@
 			var theDiv = document.getElementById(id);
 			if (theDiv.style.display == "none" || theDiv.style.display == "") {
 				theDiv.style.display = "block";
-				document.getElementById("switcher").value = id; // changes depending on what adminservlet should do next
 			}
 		}
 
@@ -72,16 +71,13 @@
 			var theId = id;
 			// doing this just in case hehe...
 			
-			document.getElementById("productName2").placeholder = theName;
-			document.getElementById("info2").placeholder = theInfo;
-			document.getElementById("price2").placeholder = thePrice;
-			document.getElementById("quantityAvail2").placeholder = theQuantity;
-			document.getElementById("id2").placeholder = theId;
+			document.getElementById("productName2").value = theName;
+			document.getElementById("info2").value = theInfo;
+			document.getElementById("price2").value = thePrice;
+			document.getElementById("quantityAvail2").value = theQuantity;
+			document.getElementById("id2").value = theId;
 			// basically takes the product name, info, price, quantity from the java Product object 
 			// then puts as placeholder in the form 
-				
-			document.getElementById("switcher").value = "editProduct";
-			
 		}
 		
 		function deleteP(id, name){
@@ -91,8 +87,8 @@
 			var theId = id;
 			var theName = name;
 			
-			document.getElementById("id3").placeholder = theId;
-			document.getElementById("productName3").placeholder = theName;
+			document.getElementById("id3").value = theId;
+			document.getElementById("productName3").value = theName;
 		}
 		
 		function changeStatus(id, name, status){
@@ -103,18 +99,16 @@
 			if(theStatus == "Deactivated" || theStatus == "Suspended"){
 				document.getElementById("suspendedTable").style.display = "none"; // i named everything suspended but its suspended/deactivated users
 				document.getElementById("reactivateConfirm").style.display = "block";
-				document.getElementById("switcher").value = "reactivateCfm"; // though it should already be reactivate lmao
-				document.getElementById("id4").placeholder = theId;
-				document.getElementById("userName").placeholder = theName;
+
+				document.getElementById("id4").value = theId;
+				document.getElementById("userName").value = theName;
 			}
 			else if (theStatus == "Active"){
 				document.getElementById("activeTable").style.display = "none";
 				document.getElementById("suspendConfirm").style.display = "block";
 				
-				document.getElementById("switcher").value = "suspendCfm";
-				
-				document.getElementById("id5").placeholder = theId;
-				document.getElementById("userName2").placeholder = theName;
+				document.getElementById("id5").value = theId;
+				document.getElementById("userName2").value = theName;
 			}
 			else {
 				console.log("either it broke or you're doing something you're not supposed to")
@@ -379,34 +373,35 @@
             				int theAdmin = rs.getInt("created_by_admin_id");
 					%>
 
-    <tr>
-        <td><%= theId %></td>
-        <td><%= theName %></td>
-        <td><%= theInfo %></td>
-        <td><%= thePrice %></td>
-        <td><%= theCondition %></td>
-        <td><%= theQuantity %></td>
-        <td><%= theStatus %></td>
-        <td><%= theDate %></td>
-        <td><%= theNotice %></td>
-        <td><%= theCategory %></td>
-        <td><%= theAdmin %></td>
-        <td><a href="#" onclick="changeProduct('<%= theName %>','<%= theInfo %>', '<%= thePrice %>', '<%= theQuantity %>', '<%= theId %>')">Edit</a>
-        <a href="#" onclick="deleteP('<%= theId %>', '<%= theName %>')">Delete</a>
-        </td>
-    </tr>
+   	 				<tr>
+        				<td><%= theId %></td>
+        				<td><%= theName %></td>
+        				<td><%= theInfo %></td>
+        				<td><%= thePrice %></td>
+    				    <td><%= theCondition %></td>
+  				        <td><%= theQuantity %></td>
+        				<td><%= theStatus %></td>
+        				<td><%= theDate %></td>
+        				<td><%= theNotice %></td>
+        				<td><%= theCategory %></td>
+        				<td><%= theAdmin %></td>
+        				<td>
+        					<a href="#" onclick="changeProduct('<%= theName %>','<%= theInfo %>', '<%= thePrice %>', '<%= theQuantity %>', '<%= theId %>')">Edit</a>
+        					<a href="#" onclick="deleteP('<%= theId %>', '<%= theName %>')">Delete</a>
+        				</td>
+    			</tr>
 
-<%
-        }
+				<%
+        			}
 
-        rs.close();
-        ps.close();
-        con.close();
+        			rs.close();
+			        ps.close();
+        			con.close();
 
-    } catch (Exception e) {
-        out.println(e.getMessage());
-    }
-%>
+    			} catch (Exception e) {
+    				e.printStackTrace();    
+    			}
+				%>
 				</tbody>
 			</table>
 			<!-- edit products -->
@@ -502,25 +497,25 @@
             				LocalDate theDate = rs.getDate("restock_date").toLocalDate();
 					%>
 
-    <tr>
-        <td><%= theId %></td>
-        <td><%= theProdId %></td>
-        <td><%= theAdmin %></td>
-        <td><%= theQuantity %></td>
-        <td><%= theDate %></td>
-    </tr>
+    				<tr>
+        				<td><%= theId %></td>
+        				<td><%= theProdId %></td>
+        				<td><%= theAdmin %></td>
+        				<td><%= theQuantity %></td>
+        				<td><%= theDate %></td>
+    				</tr>
 
-<%
-        }
+					<%
+        				}
 
-        rs.close();
-        ps.close();
-        con.close();
+        				rs.close();
+        				ps.close();
+        				con.close();
 
-    } catch (Exception e) {
-        out.println(e.getMessage());
-    }
-%>
+   					 } catch (Exception e) {
+    					e.printStackTrace();
+    					}
+					%>
 				</tbody>
 			</table>
 		</div>
@@ -568,7 +563,7 @@
         			ps.close();
         			con.close();
     				} catch (Exception e) {
-        			out.println(e.getMessage());
+    					e.printStackTrace();
     				}
 %>
 
@@ -590,22 +585,30 @@
 				</thead>
 				<tbody>
 					<%
-                        try (Connection con = MySQLCon.getConnection();
+                        int uid;
+						String fn;
+						String sjsu;
+						String theStat;
+						
+						try (Connection con = MySQLCon.getConnection();
                         PreparedStatement ps = con.prepareStatement(
-                        "SELECT * FROM users WHERE status = 'Active'");
+                        "SELECT * FROM users WHERE status = 'Active'"); // select active students 
                         ResultSet rs = ps.executeQuery()) {
 
                         while (rs.next()) {
+                        	uid = rs.getInt("user_id");
+                        	fn = rs.getString("full_name");
+                        	sjsu = rs.getString("sjsu_email");
+                        	theStat = rs.getString("status");
+                        	// got lazy with naming conventions :P
                         %>
 					<tr>
-						<td><%= rs.getInt("user_id") %></td>
-						<td><%= rs.getString("full_name") %></td>
-						<td><%= rs.getString("sjsu_email") %></td>
-						<td><%= rs.getString("status") %></td>
+						<td><%= uid %></td>
+						<td><%= fn %></td>
+						<td><%= sjsu %></td>
+						<td><%= theStat %></td>
 						<td><a href="#" class="reactivateButton"
-							onclick="changeStatus('<%= rs.getInt("user_id") %>',
-                                '<%= rs.getString("full_name").replace("'", "\\'") %>',
-                                '<%= rs.getString("status") %>')">
+							onclick="changeStatus('<%= rs.getInt("user_id") %>','<%= rs.getString("full_name").replace("'", "\\'") %>','<%= rs.getString("status") %>')">
 								Suspend</a></td>
 					</tr>
 					<%
@@ -620,8 +623,7 @@
 				</tbody>
 			</table>
 			<div id="suspendConfirm" style="display: none">
-				<form action="<%= request.getContextPath() %>/AdminServlet"
-					method="post">
+				<form action="<%= request.getContextPath() %>/AdminServlet" method="post">
 					<fieldset>
 						<legend>
 							<h2 class="admin-functions-headers">Confirm Suspension</h2>

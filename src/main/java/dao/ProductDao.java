@@ -15,7 +15,7 @@ import util.Product;
 public class ProductDao {
     private final static String newProductStr = 
     		"INSERT INTO products(product_id, product_name, product_description, price, product_condition, quantity_available, product_status, date_added, low_stock_notice, category_id, created_by_admin_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-// DO NOT CHANGE THESE STATEMENTS THEY NEED PRODUCT ID PLEASE REFERENCE SCHEMA 
+    // DO NOT CHANGE THESE STATEMENTS THEY NEED PRODUCT ID PLEASE REFERENCE SCHEMA 
     
     private final static String editProductStr = "UPDATE products SET product_name = ?, product_description = ?, price = ?, product_condition = ?, quantity_available = ?, product_status = ?, low_stock_notice = ? WHERE product_id = ?;";
 
@@ -24,19 +24,16 @@ public class ProductDao {
     private final static String deleteStr = "DELETE FROM products WHERE product_id = ?;";
 
     public static int getLatestId(){ // use for new products
-        int theNum = 0;
-        
-		try {
-			Connection con = MySQLCon.getConnection();
-	        PreparedStatement latestIdPs;
-			latestIdPs = con.prepareStatement(getLatestIdStr);
-			ResultSet rs = latestIdPs.executeQuery();
-			
-	        if (rs.getNext()) {
-	        	theNum = rs.getInt("product_id") + 1;
+        int theNum = 1;
+		try (Connection con = MySQLCon.getConnection();
+				PreparedStatement latestIdPs = con.prepareStatement(getLatestIdStr);
+				ResultSet rs = latestIdPs.executeQuery()) {
+	        if (rs.next()) {
+	        	int max = rs.getInt(1);
+	        	theNum = max + 1;
 	        }
-			
-		} catch (SQLException e) {
+        }
+		 catch (SQLException e) {
 			e.printStackTrace();
 		}
         return theNum;
@@ -45,12 +42,13 @@ public class ProductDao {
     public static void newProduct(Product prod) throws SQLException {
 
 
-        try {
-            Connection con = MySQLCon.getConnection();
-            PreparedStatement newProdPs = con.prepareStatement(newProductStr);
-            
-            newProdPs.setInt(1, getLatestId());
-            prod.setProductId(getLatestId()); // set the id
+        try 
+            (Connection con = MySQLCon.getConnection();
+            PreparedStatement newProdPs = con.prepareStatement(newProductStr);){
+
+            int newId = getLatestId();
+            newProdPs.setInt(1, newId);
+            prod.setProductId(newId); // set the id
 
 
             newProdPs.setString(2, prod.getProductName());
@@ -83,6 +81,8 @@ public class ProductDao {
             newProdPs.setInt(11, prod.getCreatedByAdminId());
             
             newProdPs.executeUpdate();
+            
+            newProdPs.close();
             con.close();
             
         } catch (SQLException e) {
@@ -93,9 +93,9 @@ public class ProductDao {
     
     
     public static void editProduct(Product prod) throws SQLException {
-    	try {
-            Connection con = MySQLCon.getConnection();
-            PreparedStatement editProdPs = con.prepareStatement(editProductStr);
+    	try
+            (Connection con = MySQLCon.getConnection();
+            PreparedStatement editProdPs = con.prepareStatement(editProductStr);){
 
             // change these 
             editProdPs.setString(1, prod.getProductName());
@@ -122,7 +122,9 @@ public class ProductDao {
 
             
             editProdPs.executeUpdate();
+            
             con.close();
+            editProdPs.close();
             
         } catch (SQLException e) {
         	e.printStackTrace();
@@ -130,13 +132,15 @@ public class ProductDao {
     }
     
     public static void deleteProduct(int id) throws SQLException{
-    	try {
-            Connection con = MySQLCon.getConnection();
-            PreparedStatement deleteProdPs = con.prepareStatement(deleteStr);
+    	try
+            (Connection con = MySQLCon.getConnection();
+            PreparedStatement deleteProdPs = con.prepareStatement(deleteStr);){
             
             deleteProdPs.setInt(1, id);
             
             deleteProdPs.executeUpdate();
+            
+            deleteProdPs.close();
             con.close();
             
     	} catch (SQLException e) {

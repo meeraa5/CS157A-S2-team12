@@ -43,23 +43,15 @@ public class AdminServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String switcher = request.getParameter("switcher");
 
-
-		if (switcher == "newProd") {
+		if ("newProd".equals(switcher)) {
 			makeNewProd(request, response);
-		}
-
-		else if (switcher == "editProduct") { 
+		} else if ("editProduct".equals(switcher)) {
 			editProduct(request, response);
-		}
-
-		else if (switcher == "delete") {
+		} else if ("delete".equals(switcher)) {
 			deleteProduct(request, response);
-		}
-		
-		else if (switcher == "reactivateCfm") {
+		} else if ("reactivateCfm".equals(switcher)) {
 			reactivate(request, response);
-		}
-		else if (switcher == "suspendCfm") {
+		} else if ("suspendCfm".equals(switcher)) {
 			suspend(request, response);
 		}
 	}
@@ -71,7 +63,7 @@ public class AdminServlet extends HttpServlet {
 		doGet(request, response);
 	}
 	
-	private void makeNewProd(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
+	private void makeNewProd(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// get the info from the site
 		String theName = request.getParameter("productName");
         String theInfo = request.getParameter("info");
@@ -89,8 +81,12 @@ public class AdminServlet extends HttpServlet {
 		}
 
 		Product theProduct = new Product(0,theName, theInfo, thePrice, theCondition, theQuantity, theStatus, theDate, theNotice, theCategory, theAdmin);
-		ProductDao.newProduct(theProduct); // put the new product into the database
-		response.sendRedirect("admin.jsp"); // refresh page? and clears the form i hope..
+		try {
+			ProductDao.newProduct(theProduct);
+		} catch (SQLException e) {
+			throw new ServletException(e);
+		}
+		response.sendRedirect("admin.jsp");
 	}
 	
 	
@@ -110,26 +106,45 @@ public class AdminServlet extends HttpServlet {
 			theNotice = "yes";
 		}
         Product edit = new Product(theID, theName, theInfo, thePrice, theCondition, theQuantity, theStatus, theNotice);
-        ProductDao.editProduct(edit);
-        RestockHistory entry = new RestockHistory(theID, added, theDate);
+        try {
+			ProductDao.editProduct(edit);
+			if (added > 0) {
+				RestockHistory entry = new RestockHistory(theID, added, theDate);
+				RestockHistoryDao.newHistory(entry);
+			}
+		} catch (SQLException e) {
+			throw new ServletException(e);
+		}
         response.sendRedirect("admin.jsp");
 	}
 	
 	private void deleteProduct(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 		int theID = Integer.parseInt(request.getParameter("id3"));
-		ProductDao.deleteProduct(theID);
+		try {
+			ProductDao.deleteProduct(theID);
+		} catch (SQLException e) {
+			throw new ServletException(e);
+		}
 		response.sendRedirect("admin.jsp");
 	}
 	
 	private void reactivate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 		int userID = Integer.parseInt(request.getParameter("id4"));
-		UserDao.reactivateUser(userID);
+		try {
+			UserDao.reactivateUser(userID);
+		} catch (SQLException e) {
+			throw new ServletException(e);
+		}
 		response.sendRedirect("admin.jsp");
 	}
 	
 	private void suspend(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 		int userID = Integer.parseInt(request.getParameter("id5"));
-		UserDao.suspendUser(userID);
+		try {
+			UserDao.suspendUser(userID);
+		} catch (SQLException e) {
+			throw new ServletException(e);
+		}
 		response.sendRedirect("admin.jsp");
 	}
 }
