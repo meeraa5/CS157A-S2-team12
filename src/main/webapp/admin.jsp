@@ -9,12 +9,12 @@
 
 
 <%
-String role = (String) session.getAttribute("role");
+	String role = (String) session.getAttribute("role");
 
-if (role == null || !role.equals("admin")) {
-	response.sendRedirect("login.jsp?Error=Access denied");
-	return;
-}
+	if (role == null || !role.equals("admin")) {
+		response.sendRedirect("login.jsp?Error=Access denied");
+		return;
+	}
 %>
 
 <!DOCTYPE html>
@@ -46,7 +46,7 @@ if (role == null || !role.equals("admin")) {
 			var theDiv = document.getElementById(id);
 			if (theDiv.style.display == "none" || theDiv.style.display == "") {
 				theDiv.style.display = "block";
-				switcher.value = id; // changes depending on what adminservlet should do next
+				document.getElementById("switcher").value = id; // changes depending on what adminservlet should do next
 			}
 		}
 
@@ -58,7 +58,6 @@ if (role == null || !role.equals("admin")) {
 			document.getElementById("reactivate").style.display = "none";
 			document.getElementById("suspend").style.display = "none";
 			document.getElementById("restock").style.display = "none";
-			// changing this was redundant but i'll leave it
 		}
 		
 		function changeProduct(name, info, price, quantity, id){
@@ -88,8 +87,6 @@ if (role == null || !role.equals("admin")) {
 		function deleteP(id, name){
 			document.getElementById("editTable").style.display = "none"; // hide the table of products
 			document.getElementById("deleteConfirm").style.display = "block";
-			
-			document.getElementById("switcher").value = "delete";
 			
 			var theId = id;
 			var theName = name;
@@ -126,8 +123,7 @@ if (role == null || !role.equals("admin")) {
 		}
 
 	</script>
-	<input type="hidden" id="switcher" name="switcher" value="none">
-	<!-- tells AdminServlet what to use -->
+
 	<h2>Management Options</h2>
 	<ul>
 		<li><a href="#" onclick="toggleVisibility('reports')">Analytics
@@ -136,8 +132,7 @@ if (role == null || !role.equals("admin")) {
 				New Product Listing</a></li>
 		<li><a href="#" onclick="toggleVisibility('editInformation')">Edit
 				Product Information and Adjust Inventory Quantity</a></li>
-		<li><a href="<%= request.getContextPath() %>/AdminServlet"
-			onclick="toggleVisibility('restock')">Restock History</a></li>
+		<li><a href="#" onclick="toggleVisibility('restock')">Restock History</a></li>
 
 	</ul>
 
@@ -147,12 +142,9 @@ if (role == null || !role.equals("admin")) {
 	<div class="section">
 		<h2>User Management</h2>
 		<ul>
-			<li><a href="<%= request.getContextPath() %>/AdminServlet"
-				onclick="toggleVisibility('monitor')">Monitor User Accounts</a></li>
-			<li><a href="<%= request.getContextPath() %>/AdminServlet"
-				onclick="toggleVisibility('suspend')">Suspend User Account</a></li>
-			<li><a href="<%= request.getContextPath() %>/AdminServlet"
-				onclick="toggleVisibility('reactivate')">Reactivate User Account</a></li>
+			<li><a href="#" onclick="toggleVisibility('monitor')">Monitor User Accounts</a></li>
+			<li><a href="#" onclick="toggleVisibility('suspend')">Suspend User Account</a></li>
+			<li><a href="#" onclick="toggleVisibility('reactivate')">Reactivate User Account</a></li>
 		</ul>
 	</div>
 	<!-- samantha will do admin and admin servlet -->
@@ -255,12 +247,12 @@ if (role == null || !role.equals("admin")) {
 					<th>Quantity Sold</th>
 				</tr>
 				<%
-				try (PreparedStatement lowProducts = reportCon.prepareStatement(
-						"SELECT p.product_name, COALESCE(SUM(oi.quantity), 0) AS quantity_sold " +
-						"FROM products p LEFT JOIN order_items oi ON p.product_id = oi.product_id " +
-						"GROUP BY p.product_id, p.product_name ORDER BY quantity_sold ASC, p.product_name ASC LIMIT 5");
-					 ResultSet lowProductsRs = lowProducts.executeQuery()) {
-					while (lowProductsRs.next()) {
+					try (PreparedStatement lowProducts = reportCon.prepareStatement(
+							"SELECT p.product_name, COALESCE(SUM(oi.quantity), 0) AS quantity_sold "
+									+ "FROM products p LEFT JOIN order_items oi ON p.product_id = oi.product_id "
+									+ "GROUP BY p.product_id, p.product_name ORDER BY quantity_sold ASC, p.product_name ASC LIMIT 5");
+							ResultSet lowProductsRs = lowProducts.executeQuery()) {
+						while (lowProductsRs.next()) {
 				%>
 				<tr>
 					<td><%= lowProductsRs.getString("product_name") %></td>
@@ -334,13 +326,11 @@ if (role == null || !role.equals("admin")) {
 						<option value="Available" selected>Available</option>
 						<option value="Out_of_Stock">Out of Stock</option>
 						<option value="Inactive">Inactive</option>
-					</select> <br> <br> <label for="categoryId">Category ID:</label> <input
-						type="text" id="categoryId" name="categoryId" class="formStuff"
-						required> <br> <br> <label
-						for="createdByAdminId">Admin ID:</label> <input type="text"
-						id="createdByAdminId" name="createdByAdminId" class="formStuff"
-						required> <br> <br>
-
+					</select> <br> <br> 
+					<label for="categoryId">Category ID:</label> 
+					<input type="text" id="categoryId" name="categoryId" class="formStuff" required> <br> <br> 
+					<label for="createdByAdminId">Admin ID:</label> <input type="text" id="createdByAdminId" name="createdByAdminId" class="formStuff" required> <br> <br>
+					<input type="hidden" name="switcher" value="newProd">
 					<button type="submit">Add New Product</button>
 					<!-- eclipse auto format makes me mad -->
 				</fieldset>
@@ -349,8 +339,7 @@ if (role == null || !role.equals("admin")) {
 
 		<!-- edit, delete, restock -->
 		<div id="editInformation" class="admin-functions-box">
-			<h2 class="admin-functions-headers" id="swivel">Edit Product
-				Information</h2>
+			<h2 class="admin-functions-headers" id="swivel">Edit Product Information</h2>
 			<table id="editTable">
 				<thead>
 					<tr>
@@ -371,24 +360,24 @@ if (role == null || !role.equals("admin")) {
 				<tbody>
 					<%
 
-    try 
-        (Connection con = MySQLCon.getConnection();
-        PreparedStatement ps = con.prepareStatement("SELECT * FROM products;");
-        ResultSet rs = ps.executeQuery();){
+						try 
+						(Connection con = MySQLCon.getConnection();
+        				PreparedStatement ps = con.prepareStatement("SELECT * FROM products;");
+        				ResultSet rs = ps.executeQuery();){
 
-        while (rs.next()) {
-            int theId = rs.getInt("product_id");
-            String theName = rs.getString("product_name");
-            String theInfo = rs.getString("product_description");
-            float thePrice = rs.getFloat("price");
-            String theCondition = rs.getString("product_condition");
-            int theQuantity = rs.getInt("quantity_available");
-            String theStatus = rs.getString("product_status");
-            LocalDate theDate = rs.getDate("date_added").toLocalDate();
-            String theNotice = rs.getString("low_stock_notice");
-            int theCategory = rs.getInt("category_id");
-            int theAdmin = rs.getInt("created_by_admin_id");
-%>
+        					while (rs.next()) {
+            				int theId = rs.getInt("product_id");
+            				String theName = rs.getString("product_name");
+            				String theInfo = rs.getString("product_description");
+            				float thePrice = rs.getFloat("price");
+            				String theCondition = rs.getString("product_condition");
+            				int theQuantity = rs.getInt("quantity_available");
+            				String theStatus = rs.getString("product_status");
+            				LocalDate theDate = rs.getDate("date_added").toLocalDate();
+            				String theNotice = rs.getString("low_stock_notice");
+            				int theCategory = rs.getInt("category_id");
+            				int theAdmin = rs.getInt("created_by_admin_id");
+					%>
 
     <tr>
         <td><%= theId %></td>
@@ -402,7 +391,7 @@ if (role == null || !role.equals("admin")) {
         <td><%= theNotice %></td>
         <td><%= theCategory %></td>
         <td><%= theAdmin %></td>
-        <td><a href="#" onclick="changeProduct('<%= theId %>')">Edit</a>
+        <td><a href="#" onclick="changeProduct('<%= theName %>','<%= theInfo %>', '<%= thePrice %>', '<%= theQuantity %>', '<%= theId %>')">Edit</a>
         <a href="#" onclick="deleteP('<%= theId %>', '<%= theName %>')">Delete</a>
         </td>
     </tr>
@@ -455,6 +444,7 @@ if (role == null || !role.equals("admin")) {
 							<option value="Out_of_Stock">Out of Stock</option>
 							<option value="Inactive">Inactive</option>
 						</select>
+						<input type="hidden" name="switcher" value="editProduct">
 						<button type="submit">Change Product</button>
 					</fieldset>
 				</form>
@@ -475,6 +465,7 @@ if (role == null || !role.equals("admin")) {
 							confirm
 						</label> <input type="text" id="yes" name="yes" class="formStuff"
 							pattern="[yY][eE][sS]" required>
+						<input type="hidden" name="switcher" value="delete">
 						<!-- any variant of yes will work -->
 						<br> <br>
 						<button type="submit">Delete</button>
@@ -643,6 +634,7 @@ if (role == null || !role.equals("admin")) {
 							confirm
 						</label> <input type="text" id="yes2" name="yes2" class="formStuff"
 							pattern="[yY][eE][sS]" required>
+						<input type="hidden" name="switcher" value="suspendCfm">
 						<!-- any variant of yes will work -->
 						<br> <br>
 						<button type="submit">Suspend</button>
@@ -707,6 +699,7 @@ if (role == null || !role.equals("admin")) {
 							confirm
 						</label> <input type="text" id="yes3" name="yes3" class="formStuff"
 							pattern="[yY][eE][sS]" required>
+						<input type="hidden" name="switcher" value="reactivateCfm">
 						<!-- any variant of yes will work -->
 						<br> <br>
 						<button type="submit">Reactivate</button>

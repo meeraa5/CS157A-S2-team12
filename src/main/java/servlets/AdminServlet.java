@@ -48,23 +48,12 @@ public class AdminServlet extends HttpServlet {
 			makeNewProd(request, response);
 		}
 
-
-		else if (switcher == "editProduct") { // real edit product method
+		else if (switcher == "editProduct") { 
 			editProduct(request, response);
 		}
 
-
 		else if (switcher == "delete") {
 			deleteProduct(request, response);
-		}
-
-
-		else if (switcher == "monitor") {
-			showActivity(request, response);
-		}
-		
-		else if (switcher == "restock") {
-			showRestockHistory(request, response);
 		}
 		
 		else if (switcher == "reactivateCfm") {
