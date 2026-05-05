@@ -236,6 +236,72 @@ footer {
     cursor: pointer;
 }
 
+.message {
+    background: #ffe0e0;
+    border: 1px solid #d46a6a;
+    border-radius: 6px;
+    margin: 12px 0;
+    padding: 10px;
+}
+
+.message.success {
+    background: #e3f5e3;
+    border-color: #6bb36b;
+}
+
+.page-card,
+.review-card {
+    background: white;
+    border-radius: 8px;
+    margin: 16px 0;
+    padding: 18px;
+}
+
+.data-table {
+    border-collapse: collapse;
+    margin: 12px 0;
+    width: 100%;
+}
+
+.data-table th,
+.data-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+}
+
+.data-table th {
+    background: #f3c600;
+}
+
+.report-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.report-card {
+    background: #f3f3f3;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+/* ADMIN PAGE */
+
+.formStuff{
+    padding: 10px;
+    width: 80%;
+}
+.admin-functions-box {
+    background-color: white;
+    margin: 20px;
+    padding: 10px;
+}
+
+.admin-functions-headers{
+    text-align: center;
+}
+
 /* RESPONSIVE */
 @media (max-width: 1000px) {
     .product-grid {
