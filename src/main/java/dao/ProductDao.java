@@ -33,12 +33,12 @@ public class ProductDao {
 	        PreparedStatement latestIdPs;
 			latestIdPs = con.prepareStatement(getLatestIdStr);
 			ResultSet rs = latestIdPs.executeQuery();
-	        if (rs.wasNull()){
-	            theNum = 1;
-	        }
-	        else {
-	            theNum = rs.getInt("product_id") + 1;
-	        }
+			/*
+			 * if (rs.wasNull()){ theNum = 1; } else {
+			 * 
+			 * }
+			 */
+	        theNum = rs.getInt("product_id") + 1;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
