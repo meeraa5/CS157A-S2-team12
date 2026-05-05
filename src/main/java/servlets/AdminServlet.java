@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import dao.ProductDao;
+import dao.RestockHistoryDao;
 import dao.UserDao;
 import util.Product;
 import util.RestockHistory;
