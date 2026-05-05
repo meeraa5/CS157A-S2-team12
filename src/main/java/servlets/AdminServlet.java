@@ -3,23 +3,17 @@ package servlets;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.RequestDispatcher;
 
-import dao.ActivityDao;
 import dao.ProductDao;
-import dao.RestockHistoryDao;
 import dao.UserDao;
-import util.Activity;
 import util.Product;
 import util.RestockHistory;
-import util.User;
 
 /**
  * Servlet implementation class AdminServlet
@@ -43,24 +37,24 @@ public class AdminServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String switcher = request.getParameter("switcher");
 
-
-		if (switcher == "newProd") {
-			makeNewProd(request, response);
-		}
-
-		else if (switcher == "editProduct") { 
-			editProduct(request, response);
-		}
-
-		else if (switcher == "delete") {
-			deleteProduct(request, response);
-		}
-		
-		else if (switcher == "reactivateCfm") {
-			reactivate(request, response);
-		}
-		else if (switcher == "suspendCfm") {
-			suspend(request, response);
+		try {
+			if ("newProd".equals(switcher)) {
+				makeNewProd(request, response);
+			}
+			else if ("editProduct".equals(switcher)) {
+				editProduct(request, response);
+			}
+			else if ("delete".equals(switcher)) {
+				deleteProduct(request, response);
+			}
+			else if ("reactivateCfm".equals(switcher)) {
+				reactivate(request, response);
+			}
+			else if ("suspendCfm".equals(switcher)) {
+				suspend(request, response);
+			}
+		} catch (SQLException exception) {
+			throw new ServletException(exception);
 		}
 	}
 
@@ -94,7 +88,7 @@ public class AdminServlet extends HttpServlet {
 	}
 	
 	
-	private void editProduct(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+	private void editProduct(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException{
 		int added = Integer.parseInt(request.getParameter("quantityAvail3")) - Integer.parseInt(request.getParameter("quantityAvail2"));
 		LocalDate theDate = LocalDate.now();
 		
@@ -115,19 +109,19 @@ public class AdminServlet extends HttpServlet {
         response.sendRedirect("admin.jsp");
 	}
 	
-	private void deleteProduct(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+	private void deleteProduct(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException{
 		int theID = Integer.parseInt(request.getParameter("id3"));
 		ProductDao.deleteProduct(theID);
 		response.sendRedirect("admin.jsp");
 	}
 	
-	private void reactivate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+	private void reactivate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException{
 		int userID = Integer.parseInt(request.getParameter("id4"));
 		UserDao.reactivateUser(userID);
 		response.sendRedirect("admin.jsp");
 	}
 	
-	private void suspend(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+	private void suspend(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException{
 		int userID = Integer.parseInt(request.getParameter("id5"));
 		UserDao.suspendUser(userID);
 		response.sendRedirect("admin.jsp");

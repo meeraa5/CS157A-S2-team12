@@ -32,7 +32,7 @@ public class ProductDao {
 			latestIdPs = con.prepareStatement(getLatestIdStr);
 			ResultSet rs = latestIdPs.executeQuery();
 			
-	        if (rs.getNext()) {
+	        if (rs.next()) {
 	        	theNum = rs.getInt("product_id") + 1;
 	        }
 			

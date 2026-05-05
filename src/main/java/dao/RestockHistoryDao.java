@@ -25,7 +25,7 @@ public class RestockHistoryDao {
 	        PreparedStatement latestIdPs;
 			latestIdPs = con.prepareStatement(getLatestHist);
 			ResultSet rs = latestIdPs.executeQuery();
-	        if (rs.getNext()){
+	        if (rs.next()){
 	            theNum = rs.getInt("restock_id") + 1;
 	        }
 		} catch (SQLException e) {
