@@ -50,6 +50,7 @@ if (search == null) {
         <a href="<%= request.getContextPath() %>/orders.jsp">Orders</a>
         <a href="#">Help</a>
         <a href="<%= request.getContextPath() %>/cart.jsp">Cart (0)</a>
+        <!-- <a href="#">Logout</a> -->
     </nav>
 </header>
 

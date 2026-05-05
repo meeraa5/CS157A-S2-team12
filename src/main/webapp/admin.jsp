@@ -340,7 +340,7 @@ if (role == null || !role.equals("admin")) {
 				<tbody>
 					<% 
 						try {
-						List<Product> theProducts = request.getAttribute("theProducts");
+						List<Product> theProducts = (List<Product>) request.getAttribute("theProducts");
 						for (Product product : theProducts){
 					%>
 						<tr>
@@ -450,7 +450,7 @@ if (role == null || !role.equals("admin")) {
 				<tbody>
 					<% 
 						try {
-						List<RestockHistory> theHistory = request.getAttribute("theHistory");
+						List<RestockHistory> theHistory = (List<RestockHistory>) request.getAttribute("theHistory");
 						for (RestockHistory history : theHistory){
 					%>
 						<tr>
@@ -484,7 +484,7 @@ if (role == null || !role.equals("admin")) {
 				<tbody>
 					<% 
 						try {
-						List<Activity> theLogs = request.getAttribute("logs");
+						List<Activity> theLogs = (List<Activity>) request.getAttribute("logs");
 						for (Activity log : theLogs){
 					%>
 						<tr>
@@ -517,7 +517,7 @@ if (role == null || !role.equals("admin")) {
 				<tbody>
 					<% 
 						try {
-						List<User> suspended = request.getAttribute("sus");
+						List<User> suspended = (List<User>) request.getAttribute("sus");
 						for (User user : suspended){
 					%>
 						<tr>
@@ -570,7 +570,7 @@ if (role == null || !role.equals("admin")) {
 				<tbody>
 					<% 
 						try {
-						List<User> suspended = request.getAttribute("sus");
+						List<User> suspended = (List<User>) request.getAttribute("sus");
 						for (User user : suspended){
 					%>
 						<tr>
