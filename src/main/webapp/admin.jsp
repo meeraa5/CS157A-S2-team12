@@ -2,7 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ page
 	import="java.sql.Connection, java.sql.PreparedStatement, java.sql.ResultSet"%>
-<%@ page import="util.MySQLCon, util.Product, java.util.List, util.RestockHistory, util.Activity, util.User"%>
+<%@ page import="util.MySQLCon, util.Product, java.util.List, util.RestockHistory, util.Activity, util.User, servlets.AdminServlet"%>
 
 
 
