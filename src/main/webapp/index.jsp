@@ -35,7 +35,7 @@ if (maxPrice == null) maxPrice = "";
 
     <nav class="nav-links">
         <a href="<%= request.getContextPath() %>/WishlistServlet">Wishlist</a>
-        <a href="#">Help</a>
+        <a href="<%= request.getContextPath() %>/help.jsp">Help</a>
         <a href="<%= request.getContextPath() %>/cart.jsp">Cart (0)</a>
         <a href="<%= request.getContextPath() %>/AuthServlet?action=logout">Logout</a>
     </nav>

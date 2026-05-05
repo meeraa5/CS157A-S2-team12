@@ -18,7 +18,7 @@
     <nav class="nav-links">
         <a href="<%= request.getContextPath() %>/index.jsp">Home</a>
         <a href="<%= request.getContextPath() %>/login.jsp">Account</a>
-        <a href="#">Help</a>
+        <a href="<%= request.getContextPath() %>/help.jsp">Help</a>
         <a href="<%= request.getContextPath() %>/cart.jsp">Cart</a>
     </nav>
 </header>

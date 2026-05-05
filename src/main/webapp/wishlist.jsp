@@ -35,7 +35,7 @@ if (wishlistItems == null) {
     <nav class="nav-links">
         <a href="<%= ctx %>/index.jsp">Home</a>
         <a href="<%= ctx %>/WishlistServlet">Wishlist</a>
-        <a href="#">Help</a>
+        <a href="<%= ctx %>/help.jsp">Help</a>
         <a href="<%= ctx %>/cart.jsp">Cart</a>
     </nav>
 </header>
