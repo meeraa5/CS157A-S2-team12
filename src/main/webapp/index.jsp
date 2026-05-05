@@ -2,29 +2,23 @@
 <%@ page import="java.sql.Connection, java.sql.PreparedStatement, java.sql.ResultSet" %>
 <%@ page import="util.MySQLCon" %>
 
-<%-- The imports make necessary formatting as it makes sure its under java but the content is in HTML formating --%>
-<%-- The second and third makes it possible for database connection its a live represantation to connection to databse--%>
-
-
-
-
-
 <%
-Connection con = null; //Assign database later 
-PreparedStatement stmt = null; //Assign sql query with try block
-ResultSet rs = null; //Store query results when got data from the database
+Connection con = null;
+PreparedStatement stmt = null;
+ResultSet rs = null;
 
 String search = request.getParameter("search");
-if (search == null) {
-    search = "";
-}
+String category = request.getParameter("category");
+String condition = request.getParameter("condition");
+String minPrice = request.getParameter("minPrice");
+String maxPrice = request.getParameter("maxPrice");
+
+if (search == null) search = "";
+if (category == null) category = "";
+if (condition == null) condition = "";
+if (minPrice == null) minPrice = "";
+if (maxPrice == null) maxPrice = "";
 %>
-
-<%-- Declaring the values first before assigning real values later with the help of try block--%>
-<%--Because we do not have the values yet its in database --%>
-
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -39,15 +33,8 @@ if (search == null) {
 <header class="navbar">
     <div class="logo">Spartan Exchange</div>
 
-    <form class="nav-search" method="get" action="<%= request.getContextPath() %>/index.jsp">
-    <input type="text" id="search-input" name="search" placeholder="Search products..."
-           value="<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>">
-    <button type="submit">Search</button>
-</form>
-
     <nav class="nav-links">
-        <a href="<%= request.getContextPath() %>/wishlist.jsp">Wishlist</a>
-        <a href="<%= request.getContextPath() %>/orders.jsp">Orders</a>
+        <a href="<%= request.getContextPath() %>/WishlistServlet">Wishlist</a>
         <a href="#">Help</a>
         <a href="<%= request.getContextPath() %>/cart.jsp">Cart (0)</a>
         <!-- <a href="#">Logout</a> -->
@@ -57,35 +44,89 @@ if (search == null) {
 <main>
     <section>
         <h2>Available Products</h2>
+
+        <div class="search-section">
+            <form method="get" action="<%= request.getContextPath() %>/index.jsp" class="filter-bar">
+
+                <input type="text" name="search" placeholder="Search products..." value="<%= search %>">
+
+                <select name="category">
+                    <option value="">All Categories</option>
+                    <option value="Books" <%= category.equals("Books") ? "selected" : "" %>>Books</option>
+                    <option value="Stationery" <%= category.equals("Stationery") ? "selected" : "" %>>Stationery</option>
+                    <option value="Furniture" <%= category.equals("Furniture") ? "selected" : "" %>>Furniture</option>
+                    <option value="Electronics" <%= category.equals("Electronics") ? "selected" : "" %>>Electronics</option>
+                </select>
+
+                <select name="condition">
+                    <option value="">All Conditions</option>
+                    <option value="New" <%= condition.equals("New") ? "selected" : "" %>>New</option>
+                    <option value="Like New" <%= condition.equals("Like New") ? "selected" : "" %>>Like New</option>
+                    <option value="Good" <%= condition.equals("Good") ? "selected" : "" %>>Good</option>
+                    <option value="Used" <%= condition.equals("Used") ? "selected" : "" %>>Used</option>
+                </select>
+
+                <input type="number" step="0.01" name="minPrice" placeholder="Min Price" value="<%= minPrice %>">
+                <input type="number" step="0.01" name="maxPrice" placeholder="Max Price" value="<%= maxPrice %>">
+
+                <button type="submit">Apply</button>
+                <a href="<%= request.getContextPath() %>/index.jsp" class="clear-btn">Clear</a>
+            </form>
+        </div>
+
         <div class="product-container">
-        
-<!--  Mainly for page structure and layout
- Collects search input 
- Sends request to tomcat server
- Does not have database query by itself thats where the try block below comes in    -->    
-        
-        
+
 <%
-try { //Main part where it connects to the database
-    con = MySQLCon.getConnection(); //Try block allows us to safely run database code because database code can fail 
-//This helps connect to database 
+try {
+    con = MySQLCon.getConnection();
 
-
-    String sql = "SELECT p.product_id, p.product_name, p.product_description, p.price, " + 
+    String sql = "SELECT p.product_id, p.product_name, p.product_description, p.price, " +
                  "p.product_condition, p.quantity_available, p.product_status, c.category_name " +
-                 "FROM products p " + //For exmple goes to products table
-                 "JOIN categories c ON p.category_id = c.category_id " + //Links categories id with products category 
-                 "WHERE p.product_status = 'Available' " + //Makes sure its condition is only for available products
-                 "AND (p.product_name LIKE ? OR p.product_description LIKE ? OR c.category_name LIKE ?)";
-//This retrieves data from the tables and combines related tables
-//Chooses which attributes from the database to return 
-		
+                 "FROM products p " +
+                 "JOIN categories c ON p.category_id = c.category_id " +
+                 "WHERE p.product_status = 'Available' " +
+                 "AND (p.product_name LIKE ? OR p.product_description LIKE ? OR c.category_name LIKE ?) ";
+
+    if (!category.equals("")) {
+        sql += "AND c.category_name = ? ";
+    }
+
+    if (!condition.equals("")) {
+        sql += "AND p.product_condition = ? ";
+    }
+
+    if (!minPrice.equals("")) {
+        sql += "AND p.price >= ? ";
+    }
+
+    if (!maxPrice.equals("")) {
+        sql += "AND p.price <= ? ";
+    }
+
     stmt = con.prepareStatement(sql);
 
+    int index = 1;
     String keyword = "%" + search + "%";
-    stmt.setString(1, keyword);
-    stmt.setString(2, keyword);
-    stmt.setString(3, keyword);
+
+    stmt.setString(index++, keyword);
+    stmt.setString(index++, keyword);
+    stmt.setString(index++, keyword);
+
+    if (!category.equals("")) {
+        stmt.setString(index++, category);
+    }
+
+    if (!condition.equals("")) {
+        stmt.setString(index++, condition);
+    }
+
+    if (!minPrice.equals("")) {
+        stmt.setDouble(index++, Double.parseDouble(minPrice));
+    }
+
+    if (!maxPrice.equals("")) {
+        stmt.setDouble(index++, Double.parseDouble(maxPrice));
+    }
 
     rs = stmt.executeQuery();
 
@@ -94,23 +135,27 @@ try { //Main part where it connects to the database
     while (rs.next()) {
         hasProducts = true;
 %>
+
             <div class="product-card">
-                <h3><%= rs.getString("product_name") %></h3> //Gets product name 
-                <p><%= rs.getString("product_description") %></p> //Product description
-                <p><strong>Price:</strong> $<%= rs.getBigDecimal("price") %></p> //Price
-                <p><strong>Condition:</strong> <%= rs.getString("product_condition") %></p> //Condition
-                <p><strong>Category:</strong> <%= rs.getString("category_name") %></p> //Category name
-                <p><strong>Remaining Quantity:</strong> <%= rs.getInt("quantity_available") %></p> //Quantity
-                <form method="post" action="<%= request.getContextPath() %>/AddToCartServlet">
-    			<input type="hidden" name="product_id" value="<%= rs.getInt("product_id") %>">
-    			<button type="submit">Add to Cart</button>
-				</form>
-                <p><a href="<%= request.getContextPath() %>/product_reviews.jsp?productId=<%= rs.getInt("product_id") %>">View Reviews</a></p>
+                <h3><%= rs.getString("product_name") %></h3>
+                <p><%= rs.getString("product_description") %></p>
+                <p><strong>Price:</strong> $<%= rs.getBigDecimal("price") %></p>
+                <p><strong>Condition:</strong> <%= rs.getString("product_condition") %></p>
+                <p><strong>Category:</strong> <%= rs.getString("category_name") %></p>
+                <p><strong>Remaining Quantity:</strong> <%= rs.getInt("quantity_available") %></p>
+
+                <form method="post" action="<%= request.getContextPath() %>/AddToCartServlet" style="margin-bottom: 8px;">
+                    <input type="hidden" name="product_id" value="<%= rs.getInt("product_id") %>">
+                    <button type="submit">Add to Cart</button>
+                </form>
+
+                <form method="post" action="<%= request.getContextPath() %>/WishlistServlet">
+                    <input type="hidden" name="action" value="add">
+                    <input type="hidden" name="product_id" value="<%= rs.getInt("product_id") %>">
+                    <button type="submit">♡ Add to Wishlist</button>
+                </form>
             </div>
-            
-            //This displays one product for the current row of the results
-            //This makes sure the loop through 
-               
+
 <%
     }
 
@@ -126,14 +171,11 @@ try { //Main part where it connects to the database
             <p>Error loading products.</p>
 <%
 } finally {
-    try { if (rs != null) rs.close(); } catch (Exception e) {}
-    try { if (stmt != null) stmt.close(); } catch (Exception e) {}
-    try { if (con != null) con.close(); } catch (Exception e) {}
+    try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+    try { if (stmt != null) stmt.close(); } catch (Exception ignored) {}
+    try { if (con != null) con.close(); } catch (Exception ignored) {}
 }
 %>
-
-//Exceptions to ensure that if something goes wrong on the try block at the top it displays specific messages
-//In which we want to display 
 
         </div>
     </section>
@@ -143,5 +185,6 @@ try { //Main part where it connects to the database
     <p>&copy; 2026 Spartan Exchange</p>
 </footer>
 
+<script src="<%= request.getContextPath() %>/js/script.js"></script>
 </body>
 </html>

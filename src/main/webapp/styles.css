@@ -27,33 +27,72 @@ body {
 }
 
 /* SEARCH BAR */
-.nav-search {
-    display: flex;
-    width: 500px;
-    margin: 0 20px;
+./* SEARCH + FILTER SECTION */
+.search-section {
+    background: white;
+    padding: 20px;
+    margin: 20px 0 30px;
+    border-radius: 12px;
 }
 
-.nav-search input {
-    flex: 1;
+.search-bar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.search-bar input {
+    width: 60%;
     padding: 12px;
-    border: none;
-    border-radius: 25px 0 0 25px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
     outline: none;
 }
 
-.nav-search button {
-    padding: 12px 18px;
+.search-bar button {
+    padding: 12px 22px;
     border: none;
     background: #f3c600;
     font-weight: bold;
-    border-radius: 0 25px 25px 0;
+    border-radius: 25px;
     cursor: pointer;
 }
 
-.nav-search button:hover {
+.search-bar button:hover {
     background: #ddb400;
 }
 
+.filter-bar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-bar select,
+.filter-bar input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+.filter-bar button {
+    padding: 10px 18px;
+    border: none;
+    background: #005aa7;
+    color: white;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.clear-btn {
+    padding: 10px 14px;
+    color: #005aa7;
+    font-weight: bold;
+    text-decoration: none;
+}
 /* NAV LINKS */
 .nav-links {
     display: flex;
@@ -115,10 +154,17 @@ main {
 }
 
 /* CARD */
+.product-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+}
+
 .product-card {
-    background: #f3f3f3;
-    padding: 20px;
-    border-radius: 8px;
+    background: white;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 /* IMAGE PLACEHOLDER */

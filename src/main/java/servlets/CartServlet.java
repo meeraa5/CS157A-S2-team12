@@ -1,4 +1,5 @@
 package servlets;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,6 +18,13 @@ import util.MySQLCon;
 public class CartServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.sendRedirect("cart.jsp");
+    }
+
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -27,8 +35,16 @@ public class CartServlet extends HttpServlet {
             return;
         }
 
+        String action = request.getParameter("action");
+        String productIdParam = request.getParameter("productId");
+
+        if (action == null || productIdParam == null) {
+            response.sendRedirect("cart.jsp?Error=Invalid cart request");
+            return;
+        }
+
         int userId = (int) session.getAttribute("user_id");
-        int productId = Integer.parseInt(request.getParameter("productId"));
+        int productId = Integer.parseInt(productIdParam);
 
         Connection con = null;
         PreparedStatement ps = null;
@@ -37,8 +53,7 @@ public class CartServlet extends HttpServlet {
         try {
             con = MySQLCon.getConnection();
 
-            int cartId= -1;
-            
+            int cartId = -1;
 
             String findCartSql = "SELECT cart_id FROM cart WHERE user_id = ?";
             ps = con.prepareStatement(findCartSql);
@@ -47,34 +62,54 @@ public class CartServlet extends HttpServlet {
 
             if (rs.next()) {
                 cartId = rs.getInt("cart_id");
-                
             }
+
             rs.close();
             ps.close();
-            
-            
-            if(cartId ==-1) {
+
+            if (cartId == -1) {
                 response.sendRedirect("cart.jsp?Error=Cart not found");
                 return;
             }
-            
-            
-            String action = request.getParameter("action");
-            
-            
+
             if ("increment".equals(action)) {
 
-                String updateSql = "UPDATE cart_items ci " +
-                        "JOIN products p ON ci.product_id = p.product_id " +
-                        "SET ci.quantity = ci.quantity + 1 " +
-                        "WHERE ci.cart_id = ? AND ci.product_id = ? AND ci.quantity < p.quantity_available";
-                ps = con.prepareStatement(updateSql);
+                String stockSql =
+                    "SELECT ci.quantity, p.quantity_available " +
+                    "FROM cart_items ci " +
+                    "JOIN products p ON ci.product_id = p.product_id " +
+                    "WHERE ci.cart_id = ? AND ci.product_id = ?";
+
+                ps = con.prepareStatement(stockSql);
                 ps.setInt(1, cartId);
                 ps.setInt(2, productId);
-                int updatedRows = ps.executeUpdate();
-                ps.close();
-                if (updatedRows == 0) {
-                    response.sendRedirect("cart.jsp?Error=No more inventory available for this product");
+                rs = ps.executeQuery();
+
+                if (rs.next()) {
+                    int cartQuantity = rs.getInt("quantity");
+                    int availableQuantity = rs.getInt("quantity_available");
+
+                    rs.close();
+                    ps.close();
+
+                    if (cartQuantity < availableQuantity) {
+                        String updateSql =
+                            "UPDATE cart_items SET quantity = quantity + 1 " +
+                            "WHERE cart_id = ? AND product_id = ?";
+
+                        ps = con.prepareStatement(updateSql);
+                        ps.setInt(1, cartId);
+                        ps.setInt(2, productId);
+                        ps.executeUpdate();
+                        ps.close();
+                    } else {
+                        response.sendRedirect("cart.jsp?Error=Only " + availableQuantity + " available in stock");
+                        return;
+                    }
+                } else {
+                    rs.close();
+                    ps.close();
+                    response.sendRedirect("cart.jsp?Error=Item not found in cart");
                     return;
                 }
 
@@ -88,18 +123,24 @@ public class CartServlet extends HttpServlet {
 
                 if (rs.next()) {
                     int quantity = rs.getInt("quantity");
-                   rs.close();
+
+                    rs.close();
                     ps.close();
 
                     if (quantity > 1) {
-                        String updateSql = "UPDATE cart_items SET quantity = quantity - 1 WHERE cart_id = ? AND product_id = ?";
+                        String updateSql =
+                            "UPDATE cart_items SET quantity = quantity - 1 " +
+                            "WHERE cart_id = ? AND product_id = ?";
+
                         ps = con.prepareStatement(updateSql);
                         ps.setInt(1, cartId);
                         ps.setInt(2, productId);
                         ps.executeUpdate();
                         ps.close();
                     } else {
-                        String deleteSql = "DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?";
+                        String deleteSql =
+                            "DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?";
+
                         ps = con.prepareStatement(deleteSql);
                         ps.setInt(1, cartId);
                         ps.setInt(2, productId);
@@ -119,20 +160,21 @@ public class CartServlet extends HttpServlet {
                 ps.setInt(2, productId);
                 ps.executeUpdate();
                 ps.close();
+
+            } else {
+                response.sendRedirect("cart.jsp?Error=Unknown action");
+                return;
             }
 
             response.sendRedirect("cart.jsp");
 
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        response.sendRedirect("cart.jsp?Error=Could not update cart");
-    } finally {
-        try { if (rs != null) rs.close(); } catch (Exception e) {}
-        try { if (ps != null) ps.close(); } catch (Exception e) {}
-        try { if (con != null) con.close(); } catch (Exception e) {}
-    }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect("cart.jsp?Error=Could not update cart");
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception e) {}
+            try { if (ps != null) ps.close(); } catch (Exception e) {}
+            try { if (con != null) con.close(); } catch (Exception e) {}
+        }
     }
 }
-
-         
