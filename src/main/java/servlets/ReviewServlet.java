@@ -1,17 +1,16 @@
 package servlets;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 import util.MySQLCon;
 
 @WebServlet("/reviews")
@@ -23,31 +22,49 @@ public class ReviewServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user_id") == null) {
-            response.sendRedirect("login.jsp?Error=Please login first");
+            response.sendRedirect("login.jsp?Error=Please login to write a review");
             return;
         }
 
         int userId = (int) session.getAttribute("user_id");
-        int productId = Integer.parseInt(request.getParameter("productId"));
-        int rating = Integer.parseInt(request.getParameter("rating"));
+        String pIdStr = request.getParameter("productId");
+        String ratingStr = request.getParameter("rating");
         String reviewText = request.getParameter("reviewText");
 
-        if (rating < 1 || rating > 5) {
-            response.sendRedirect("product_reviews.jsp?productId=" + productId + "&Error=Rating must be between 1 and 5");
+        // Safety check for parameters
+        if (pIdStr == null || ratingStr == null) {
+            response.sendRedirect("index.jsp");
             return;
         }
 
+        int productId = Integer.parseInt(pIdStr);
+        int rating = Integer.parseInt(ratingStr);
+
         try (Connection con = MySQLCon.getConnection()) {
-            if (!hasPurchasedProduct(con, userId, productId)) {
-                response.sendRedirect("product_reviews.jsp?productId=" + productId + "&Error=You can only review products you purchased");
+            
+            // 1. Check if user actually bought the item
+            boolean hasPurchased = false;
+            String checkSql = "SELECT 1 FROM order_items oi JOIN orders o ON oi.order_id = o.order_id " +
+                              "WHERE o.user_id = ? AND oi.product_id = ? LIMIT 1";
+            
+            try (PreparedStatement ps = con.prepareStatement(checkSql)) {
+                ps.setInt(1, userId);
+                ps.setInt(2, productId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    hasPurchased = rs.next();
+                }
+            }
+
+            if (!hasPurchased) {
+                response.sendRedirect("product_reviews.jsp?productId=" + productId + "&Error=You must purchase this item before reviewing");
                 return;
             }
 
-            String sql = "INSERT INTO reviews (user_id, product_id, rating, review_text, review_status) " +
-                    "VALUES (?, ?, ?, ?, 'Visible') " +
-                    "ON DUPLICATE KEY UPDATE rating = VALUES(rating), review_text = VALUES(review_text), " +
-                    "review_status = 'Visible', date_posted = CURRENT_TIMESTAMP";
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
+            // 2. Insert or Update the review (ON DUPLICATE KEY logic)
+            String reviewSql = "INSERT INTO reviews (user_id, product_id, rating, review_text) VALUES (?, ?, ?, ?) " +
+                               "ON DUPLICATE KEY UPDATE rating = VALUES(rating), review_text = VALUES(review_text), date_posted = CURRENT_TIMESTAMP";
+            
+            try (PreparedStatement ps = con.prepareStatement(reviewSql)) {
                 ps.setInt(1, userId);
                 ps.setInt(2, productId);
                 ps.setInt(3, rating);
@@ -55,34 +72,18 @@ public class ReviewServlet extends HttpServlet {
                 ps.executeUpdate();
             }
 
-            logActivity(con, userId, "Review", "Reviewed product #" + productId);
-            response.sendRedirect("product_reviews.jsp?productId=" + productId + "&Success=Review saved");
+            // 3. Log the activity
+            try (PreparedStatement logPs = con.prepareStatement("INSERT INTO activity_log (user_id, activity_type, activity_detail) VALUES (?, 'Review', ?)")) {
+                logPs.setInt(1, userId);
+                logPs.setString(2, "User reviewed product #" + productId);
+                logPs.executeUpdate();
+            }
+
+            response.sendRedirect("product_reviews.jsp?productId=" + productId + "&Success=Thank you for your review!");
+
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("product_reviews.jsp?productId=" + productId + "&Error=Could not save review");
-        }
-    }
-
-    private boolean hasPurchasedProduct(Connection con, int userId, int productId) throws Exception {
-        String sql = "SELECT 1 FROM orders o " +
-                "JOIN order_items oi ON o.order_id = oi.order_id " +
-                "WHERE o.user_id = ? AND oi.product_id = ? AND o.order_status IN ('Paid', 'Completed') LIMIT 1";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            ps.setInt(2, productId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            }
-        }
-    }
-
-    private void logActivity(Connection con, int userId, String type, String detail) throws Exception {
-        String sql = "INSERT INTO activity_log (user_id, activity_type, activity_detail) VALUES (?, ?, ?)";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            ps.setString(2, type);
-            ps.setString(3, detail);
-            ps.executeUpdate();
+            response.sendRedirect("product_reviews.jsp?productId=" + productId + "&Error=Could not save review: " + e.getMessage());
         }
     }
 }

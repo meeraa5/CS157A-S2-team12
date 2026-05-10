@@ -26,8 +26,7 @@ body {
     font-weight: bold;
 }
 
-/* SEARCH BAR */
-./* SEARCH + FILTER SECTION */
+/* SEARCH + FILTER SECTION */
 .search-section {
     background: white;
     padding: 20px;
@@ -93,6 +92,7 @@ body {
     font-weight: bold;
     text-decoration: none;
 }
+
 /* NAV LINKS */
 .nav-links {
     display: flex;
@@ -126,46 +126,20 @@ body {
     font-weight: 500;
 }
 
-/* MAIN CONTENT CENTERED */
+/* MAIN CONTENT */
 main {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
 }
 
-/* HERO SECTION */
-.hero {
-    text-align: center;
-    padding: 100px 20px 120px;
-}
-
-.hero h1 {
-    font-size: 3.5rem;
-    margin: 0;
-}
-
-.hero p {
-    margin-top: 15px;
-    font-size: 1.2rem;
-}
-
-/* PRODUCTS SECTION */
-.products {
-    text-align: center;
-}
-
-.products h2 {
-    margin-bottom: 30px;
-}
-
-/* GRID */
+/* PRODUCTS GRID */
 .product-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
 }
 
-/* CARD */
 .product-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -179,139 +153,55 @@ main {
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-/* IMAGE PLACEHOLDER */
-.product-image-placeholder {
-    width: 80px;
-    height: 20px;
-    margin: 0 auto 15px;
-    border: 1px solid #ccc;
+/* ADMIN PAGE STYLES */
+.admin-functions-box {
+    background-color: white;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    max-width: 1000px;
+    /* display: none; */ /* Commented out so you can see it! */
 }
 
-/* TEXT */
-.product-card h3 {
+.admin-functions-headers {
+    text-align: center;
+    color: #005aa7;
+    margin-bottom: 20px;
+}
+
+.formStuff {
+    padding: 10px;
+    width: 100%; /* Better for alignment than 80% */
+    border: 1px solid #ccc;
+    border-radius: 5px;
     margin-bottom: 10px;
 }
 
-.product-card p {
-    margin: 8px 0;
-}
-
-.price {
-    font-weight: bold;
-    margin: 12px 0;
-}
-
-/* BUTTONS */
-.product-actions {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-}
-
-.product-actions button {
-    background: #f3c600;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-}
-
-.product-actions button:hover {
-    background: #ddb400;
-}
-
-/* FOOTER */
-footer {
-    display: none;
-}
-
-/* LOGIN PAGE */
-.login-container {
-    max-width: 400px;
-    margin: 80px auto;
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-}
-
-.login-container input {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-}
-
-.login-container button {
-    width: 100%;
-    margin-top: 15px;
-    padding: 10px;
-    background: #f3c600;
-    border: none;
-    cursor: pointer;
-}
-
-.message {
-    background: #ffe0e0;
-    border: 1px solid #d46a6a;
-    border-radius: 6px;
-    margin: 12px 0;
-    padding: 10px;
-}
-
-.message.success {
-    background: #e3f5e3;
-    border-color: #6bb36b;
-}
-
-.page-card,
-.review-card {
-    background: white;
-    border-radius: 8px;
-    margin: 16px 0;
-    padding: 18px;
-}
-
+/* TABLE STYLING */
 .data-table {
     border-collapse: collapse;
-    margin: 12px 0;
+    margin: 20px auto;
     width: 100%;
 }
 
 .data-table th,
 .data-table td {
     border: 1px solid #ccc;
-    padding: 10px;
+    padding: 12px;
     text-align: left;
 }
 
 .data-table th {
     background: #f3c600;
+    color: #111;
 }
 
-.report-grid {
-    display: grid;
-    gap: 12px;
-    grid-template-columns: repeat(4, 1fr);
-}
-
-.report-card {
-    background: #f3f3f3;
-    border-radius: 8px;
-    padding: 16px;
-}
-
-/* ADMIN PAGE */
-
-.formStuff{
-    padding: 10px;
-    width: 80%;
-}
-.admin-functions-box {
-    background-color: white;
-    margin: 20px;
-    padding: 10px;
-}
-
-.admin-functions-headers{
-    text-align: center;
+/* Center all general tables per your request */
+table {
+    margin-left: auto;
+    margin-right: auto;
+    border-spacing: 15px;
 }
 
 /* RESPONSIVE */
@@ -325,11 +215,6 @@ footer {
     .product-grid {
         grid-template-columns: 1fr;
     }
-
-    .nav-search {
-        width: 100%;
-    }
-
     .navbar {
         flex-direction: column;
         gap: 10px;

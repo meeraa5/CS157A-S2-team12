@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -55,6 +56,7 @@ public class CartServlet extends HttpServlet {
 
             int cartId = -1;
 
+            // 1. Find the cart
             String findCartSql = "SELECT cart_id FROM cart WHERE user_id = ?";
             ps = con.prepareStatement(findCartSql);
             ps.setInt(1, userId);
@@ -63,17 +65,39 @@ public class CartServlet extends HttpServlet {
             if (rs.next()) {
                 cartId = rs.getInt("cart_id");
             }
-
             rs.close();
             ps.close();
 
+            // FALLBACK: If cart doesn't exist, create it (prevents "Cart not found" error)
             if (cartId == -1) {
-                response.sendRedirect("cart.jsp?Error=Cart not found");
-                return;
+                String createCartSql = "INSERT INTO cart (user_id) VALUES (?)";
+                ps = con.prepareStatement(createCartSql, Statement.RETURN_GENERATED_KEYS);
+                ps.setInt(1, userId);
+                ps.executeUpdate();
+                rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    cartId = rs.getInt(1);
+                }
+                rs.close();
+                ps.close();
             }
 
-            if ("increment".equals(action)) {
+            // 2. Handle Actions
+            
+            // ADDED: "add" action for the index.jsp button
+            if ("add".equals(action)) {
+                // Check if item exists to update quantity, otherwise insert
+                String addSql = "INSERT INTO cart_items (cart_id, product_id, quantity) VALUES (?, ?, 1) " +
+                                "ON DUPLICATE KEY UPDATE quantity = quantity + 1";
+                ps = con.prepareStatement(addSql);
+                ps.setInt(1, cartId);
+                ps.setInt(2, productId);
+                ps.executeUpdate();
+                ps.close();
+                response.sendRedirect("index.jsp?Success=Item added to cart");
+                return;
 
+            } else if ("increment".equals(action)) {
                 String stockSql =
                     "SELECT ci.quantity, p.quantity_available " +
                     "FROM cart_items ci " +
@@ -93,10 +117,7 @@ public class CartServlet extends HttpServlet {
                     ps.close();
 
                     if (cartQuantity < availableQuantity) {
-                        String updateSql =
-                            "UPDATE cart_items SET quantity = quantity + 1 " +
-                            "WHERE cart_id = ? AND product_id = ?";
-
+                        String updateSql = "UPDATE cart_items SET quantity = quantity + 1 WHERE cart_id = ? AND product_id = ?";
                         ps = con.prepareStatement(updateSql);
                         ps.setInt(1, cartId);
                         ps.setInt(2, productId);
@@ -106,15 +127,9 @@ public class CartServlet extends HttpServlet {
                         response.sendRedirect("cart.jsp?Error=Only " + availableQuantity + " available in stock");
                         return;
                     }
-                } else {
-                    rs.close();
-                    ps.close();
-                    response.sendRedirect("cart.jsp?Error=Item not found in cart");
-                    return;
                 }
 
             } else if ("decrement".equals(action)) {
-
                 String checkSql = "SELECT quantity FROM cart_items WHERE cart_id = ? AND product_id = ?";
                 ps = con.prepareStatement(checkSql);
                 ps.setInt(1, cartId);
@@ -123,39 +138,22 @@ public class CartServlet extends HttpServlet {
 
                 if (rs.next()) {
                     int quantity = rs.getInt("quantity");
-
                     rs.close();
                     ps.close();
 
                     if (quantity > 1) {
-                        String updateSql =
-                            "UPDATE cart_items SET quantity = quantity - 1 " +
-                            "WHERE cart_id = ? AND product_id = ?";
-
-                        ps = con.prepareStatement(updateSql);
-                        ps.setInt(1, cartId);
-                        ps.setInt(2, productId);
-                        ps.executeUpdate();
-                        ps.close();
+                        ps = con.prepareStatement("UPDATE cart_items SET quantity = quantity - 1 WHERE cart_id = ? AND product_id = ?");
                     } else {
-                        String deleteSql =
-                            "DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?";
-
-                        ps = con.prepareStatement(deleteSql);
-                        ps.setInt(1, cartId);
-                        ps.setInt(2, productId);
-                        ps.executeUpdate();
-                        ps.close();
+                        ps = con.prepareStatement("DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?");
                     }
-                } else {
-                    rs.close();
+                    ps.setInt(1, cartId);
+                    ps.setInt(2, productId);
+                    ps.executeUpdate();
                     ps.close();
                 }
 
             } else if ("remove".equals(action)) {
-
-                String deleteSql = "DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?";
-                ps = con.prepareStatement(deleteSql);
+                ps = con.prepareStatement("DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?");
                 ps.setInt(1, cartId);
                 ps.setInt(2, productId);
                 ps.executeUpdate();
@@ -166,6 +164,7 @@ public class CartServlet extends HttpServlet {
                 return;
             }
 
+            // Default redirect for increment/decrement/remove
             response.sendRedirect("cart.jsp");
 
         } catch (Exception e) {

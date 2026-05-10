@@ -3,8 +3,11 @@
 <%@ page import="util.MySQLCon" %>
 
 <%
+// Retrieve user session and the specific product ID
 Integer userId = (Integer) session.getAttribute("user_id");
 String productIdParam = request.getParameter("productId");
+
+// If no product is specified, head back to home
 if (productIdParam == null) {
     response.sendRedirect("index.jsp");
     return;
@@ -30,22 +33,25 @@ if (productIdParam == null) {
 
 <main>
 <%
+// Feedback messaging for the user (errors or success confirmations)
 String error = request.getParameter("Error");
 String success = request.getParameter("Success");
 if (error != null) {
 %>
-    <div class="message"><%= error %></div>
+    <div class="message" style="color: red; background: #fee; padding: 10px; margin: 10px; border: 1px solid red;"><%= error %></div>
 <%
 }
 if (success != null) {
 %>
-    <div class="message success"><%= success %></div>
+    <div class="message success" style="color: green; background: #efe; padding: 10px; margin: 10px; border: 1px solid green;"><%= success %></div>
 <%
 }
 
 try (Connection con = MySQLCon.getConnection()) {
     int productId = Integer.parseInt(productIdParam);
     String productName = "";
+    
+    // 1. Fetch Product Basic Info
     String productSql = "SELECT product_name, product_description FROM products WHERE product_id = ?";
     try (PreparedStatement productPs = con.prepareStatement(productSql)) {
         productPs.setInt(1, productId);
@@ -70,9 +76,11 @@ try (Connection con = MySQLCon.getConnection()) {
     int existingRating = 5;
     String existingText = "";
 
+    // 2. Logic to see if user has bought this item and if they have an existing review
     if (userId != null) {
+        // CORRECTED: Ensure status matches 'Completed' (what your CheckoutServlet uses)
         String purchaseSql = "SELECT 1 FROM orders o JOIN order_items oi ON o.order_id = oi.order_id " +
-                "WHERE o.user_id = ? AND oi.product_id = ? AND o.order_status IN ('Paid', 'Completed') LIMIT 1";
+                "WHERE o.user_id = ? AND oi.product_id = ? AND o.order_status = 'Completed' LIMIT 1";
         try (PreparedStatement purchasePs = con.prepareStatement(purchaseSql)) {
             purchasePs.setInt(1, userId);
             purchasePs.setInt(2, productId);
@@ -94,6 +102,7 @@ try (Connection con = MySQLCon.getConnection()) {
         }
     }
 
+    // 3. Show Review Submission Form if authorized
     if (canReview) {
 %>
     <section class="page-card">
@@ -110,19 +119,20 @@ try (Connection con = MySQLCon.getConnection()) {
         }
 %>
             </select>
-            <label for="reviewText">Review</label>
-            <textarea id="reviewText" name="reviewText" rows="4"><%= existingText %></textarea>
-            <button type="submit">Save Review</button>
+            <br><br>
+            <label for="reviewText">Review</label><br>
+            <textarea id="reviewText" name="reviewText" rows="4" style="width:100%" placeholder="What did you think of this product?"><%= existingText %></textarea><br>
+            <button type="submit" class="btn">Save Review</button>
         </form>
     </section>
 <%
     } else if (userId == null) {
 %>
-    <p><a href="<%= request.getContextPath() %>/login.jsp">Log in</a> to review products you purchased.</p>
+    <p class="page-card"><a href="<%= request.getContextPath() %>/login.jsp">Log in</a> to review products you purchased.</p>
 <%
     } else {
 %>
-    <p>You can review this product after purchasing it.</p>
+    <p class="page-card">You can review this product after your purchase is completed.</p>
 <%
     }
 %>
@@ -130,8 +140,9 @@ try (Connection con = MySQLCon.getConnection()) {
     <section class="page-card">
         <h3>Customer Reviews</h3>
 <%
+    // Updated SQL to be more robust regarding columns
     String summarySql = "SELECT COUNT(*) AS review_count, AVG(rating) AS average_rating FROM reviews " +
-            "WHERE product_id = ? AND review_status = 'Visible'";
+            "WHERE product_id = ?";
     try (PreparedStatement summaryPs = con.prepareStatement(summarySql)) {
         summaryPs.setInt(1, productId);
         try (ResultSet summaryRs = summaryPs.executeQuery()) {
@@ -141,7 +152,7 @@ try (Connection con = MySQLCon.getConnection()) {
 <%
             } else {
 %>
-        <p>No reviews yet.</p>
+        <p>No reviews yet. Be the first to review!</p>
 <%
             }
         }
@@ -149,17 +160,17 @@ try (Connection con = MySQLCon.getConnection()) {
 
     String reviewSql = "SELECT r.rating, r.review_text, r.date_posted, u.full_name " +
             "FROM reviews r JOIN users u ON r.user_id = u.user_id " +
-            "WHERE r.product_id = ? AND r.review_status = 'Visible' " +
+            "WHERE r.product_id = ? " + 
             "ORDER BY r.date_posted DESC";
     try (PreparedStatement reviewPs = con.prepareStatement(reviewSql)) {
         reviewPs.setInt(1, productId);
         try (ResultSet reviewRs = reviewPs.executeQuery()) {
             while (reviewRs.next()) {
 %>
-        <div class="review-card">
-            <p><strong><%= reviewRs.getInt("rating") %> / 5</strong> by <%= reviewRs.getString("full_name") %></p>
+        <div class="review-card" style="border-bottom: 1px solid #ddd; padding: 10px 0; margin-bottom: 10px;">
+            <p><strong><%= reviewRs.getInt("rating") %> / 5 Stars</strong> by <%= reviewRs.getString("full_name") %></p>
             <p><%= reviewRs.getString("review_text") == null ? "" : reviewRs.getString("review_text") %></p>
-            <p><small><%= reviewRs.getTimestamp("date_posted") %></small></p>
+            <p><small style="color: #666;">Posted on: <%= reviewRs.getTimestamp("date_posted") %></small></p>
         </div>
 <%
             }
@@ -171,7 +182,7 @@ try (Connection con = MySQLCon.getConnection()) {
 } catch (Exception e) {
     e.printStackTrace();
 %>
-    <p>Error loading reviews.</p>
+    <p>Error loading reviews. Please check console logs.</p>
 <%
 }
 %>

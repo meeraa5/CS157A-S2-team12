@@ -8,7 +8,7 @@ public class RestockHistory {
     private int quantityAdded;
     private LocalDate restockDate;
     
-    protected RestockHistory() {
+    public RestockHistory() {
 	}
     
     public RestockHistory(int restockId, int productId, int adminId, int quantityAdded, LocalDate restockDate) {

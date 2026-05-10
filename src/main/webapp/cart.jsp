@@ -37,6 +37,7 @@ ResultSet rs = null;
 
 double total = 0.0;
 int totalItems = 0;
+boolean hasItems = false; // Moved up to use in the checkout section
 %>
 
 <main class="cart-page">
@@ -70,11 +71,8 @@ int totalItems = 0;
         ps.setInt(1, userId);
         rs = ps.executeQuery();
 
-        boolean hasItems = false;
-
         while (rs.next()) {
             hasItems = true;
-            
             
             //Help calculates and displays total price per item and updates overall cart total and item count for displays 
 
@@ -159,7 +157,15 @@ int totalItems = 0;
 <section class="cart-right">
     <h3>Subtotal: $<%= String.format("%.2f", total) %></h3>
     <p>Total Items: <%= totalItems %></p>
-    <button class="checkout-btn">Proceed to Checkout</button>
+    
+    <%-- Form to handle checkout submission --%>
+    <form action="<%= request.getContextPath() %>/checkout" method="post">
+        <% if (hasItems) { %>
+            <button type="submit" class="checkout-btn">Proceed to Checkout</button>
+        <% } else { %>
+            <button type="button" class="checkout-btn" disabled>Proceed to Checkout</button>
+        <% } %>
+    </form>
 </section>
 
 </main>

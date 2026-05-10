@@ -3,6 +3,7 @@
 <%@ page import="util.MySQLCon" %>
 
 <%
+// Security check: ensure user is logged in
 Integer userId = (Integer) session.getAttribute("user_id");
 if (userId == null) {
     response.sendRedirect("login.jsp?Error=Please login first");
@@ -30,13 +31,18 @@ if (userId == null) {
 <main>
     <h2>Order History</h2>
 <%
+// Try-with-resources used to auto-close connection and prevent leaks
 try (Connection con = MySQLCon.getConnection()) {
+    // Querying for all orders belonging to the logged-in user
     String orderSql = "SELECT order_id, order_date, order_status, total_amount " +
             "FROM orders WHERE user_id = ? ORDER BY order_date DESC";
+    
     try (PreparedStatement orderPs = con.prepareStatement(orderSql)) {
         orderPs.setInt(1, userId);
+        
         try (ResultSet orderRs = orderPs.executeQuery()) {
             boolean hasOrders = false;
+            
             while (orderRs.next()) {
                 hasOrders = true;
                 int orderId = orderRs.getInt("order_id");
@@ -46,6 +52,7 @@ try (Connection con = MySQLCon.getConnection()) {
         <p><strong>Date:</strong> <%= orderRs.getTimestamp("order_date") %></p>
         <p><strong>Status:</strong> <%= orderRs.getString("order_status") %></p>
         <p><strong>Total:</strong> $<%= orderRs.getBigDecimal("total_amount") %></p>
+        
         <table class="data-table">
             <tr>
                 <th>Product</th>
@@ -54,11 +61,14 @@ try (Connection con = MySQLCon.getConnection()) {
                 <th>Review</th>
             </tr>
 <%
+                // Inner query to fetch specific items for the current order loop
                 String itemSql = "SELECT oi.product_id, oi.quantity, oi.total_price, p.product_name " +
                         "FROM order_items oi JOIN products p ON oi.product_id = p.product_id " +
                         "WHERE oi.order_id = ?";
+                        
                 try (PreparedStatement itemPs = con.prepareStatement(itemSql)) {
                     itemPs.setInt(1, orderId);
+                    
                     try (ResultSet itemRs = itemPs.executeQuery()) {
                         while (itemRs.next()) {
 %>
