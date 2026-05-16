@@ -42,6 +42,7 @@ String role = (String) session.getAttribute("role");
         <a href="<%= request.getContextPath() %>/index.jsp">Home</a>
         <% if (userId != null) { %>
             <a href="<%= request.getContextPath() %>/WishlistServlet">Wishlist</a>
+            <a href="<%= request.getContextPath() %>/orders.jsp">Orders</a>
             <a href="<%= request.getContextPath() %>/cart.jsp">Cart</a>
             <% if ("admin".equals(role)) { %>
                 <a href="<%= request.getContextPath() %>/admin.jsp">Admin</a>

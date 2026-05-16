@@ -14,6 +14,11 @@ public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (!isAdmin(request)) {
+            response.sendRedirect(request.getContextPath() + "/login.jsp?Error=Access denied");
+            return;
+        }
+
         String switcher = request.getParameter("switcher");
 
         try (Connection con = MySQLCon.getConnection()) {
@@ -84,5 +89,10 @@ public class AdminServlet extends HttpServlet {
             // Redirect with error detail if something fails
             response.sendRedirect("admin.jsp?msg=error&detail=" + e.getMessage());
         }
+    }
+
+    private boolean isAdmin(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        return session != null && "admin".equals(session.getAttribute("role"));
     }
 }
