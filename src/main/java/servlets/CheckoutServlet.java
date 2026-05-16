@@ -18,8 +18,9 @@ public class CheckoutServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
+        String contextPath = request.getContextPath();
         if (session == null || session.getAttribute("user_id") == null) {
-            response.sendRedirect("login.jsp?Error=Please login first");
+            response.sendRedirect(contextPath + "/login.jsp?Error=Please login first");
             return;
         }
 
@@ -46,7 +47,7 @@ public class CheckoutServlet extends HttpServlet {
                 List<CartLine> cartLines = new ArrayList<>();
                 String fetchItemsSql = "SELECT ci.product_id, ci.quantity, p.product_name, p.price, p.quantity_available " +
                                      "FROM cart_items ci JOIN products p ON ci.product_id = p.product_id " +
-                                     "WHERE ci.cart_id = ? FOR UPDATE";
+                                     "WHERE ci.cart_id = ? AND p.product_status = 'Available' FOR UPDATE";
                 
                 BigDecimal orderTotal = BigDecimal.ZERO;
                 try (PreparedStatement ps = con.prepareStatement(fetchItemsSql)) {
@@ -61,6 +62,9 @@ public class CheckoutServlet extends HttpServlet {
                                 rs.getBigDecimal("price")
                             );
                             cartLines.add(line);
+                            if (line.quantity > line.quantityAvailable) {
+                                throw new Exception("Not enough inventory for " + line.productName);
+                            }
                             orderTotal = orderTotal.add(line.unitPrice.multiply(BigDecimal.valueOf(line.quantity)));
                         }
                     }
@@ -96,9 +100,15 @@ public class CheckoutServlet extends HttpServlet {
                         ps.executeUpdate();
 
                         // 5. Update Product Inventory
-                        try (PreparedStatement ups = con.prepareStatement("UPDATE products SET quantity_available = quantity_available - ? WHERE product_id = ?")) {
+                        try (PreparedStatement ups = con.prepareStatement(
+                                "UPDATE products SET quantity_available = quantity_available - ?, " +
+                                "product_status = CASE WHEN quantity_available - ? <= 0 THEN 'Out_of_Stock' ELSE 'Available' END, " +
+                                "low_stock_notice = CASE WHEN quantity_available - ? < 5 THEN 'yes' ELSE 'no' END " +
+                                "WHERE product_id = ?")) {
                             ups.setInt(1, line.quantity);
-                            ups.setInt(2, line.productId);
+                            ups.setInt(2, line.quantity);
+                            ups.setInt(3, line.quantity);
+                            ups.setInt(4, line.productId);
                             ups.executeUpdate();
                         }
                     }
@@ -110,19 +120,25 @@ public class CheckoutServlet extends HttpServlet {
                     ps.executeUpdate();
                 }
 
+                try (PreparedStatement ps = con.prepareStatement("INSERT INTO activity_log (user_id, activity_type, activity_detail) VALUES (?, 'Checkout', ?)")) {
+                    ps.setInt(1, userId);
+                    ps.setString(2, "Created order #" + orderId + " for $" + orderTotal);
+                    ps.executeUpdate();
+                }
+
                 con.commit(); // Success!
-                response.sendRedirect("order_confirmation.jsp?orderId=" + orderId);
+                response.sendRedirect(contextPath + "/order_confirmation.jsp?orderId=" + orderId);
 
             } catch (Exception e) {
                 con.rollback(); // Undo everything on error
                 e.printStackTrace();
-                response.sendRedirect("cart.jsp?Error=System Error: " + e.getMessage());
+                response.sendRedirect(contextPath + "/cart.jsp?Error=System Error: " + e.getMessage());
             } finally {
                 con.setAutoCommit(true);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("cart.jsp?Error=Database Connection Error");
+            response.sendRedirect(contextPath + "/cart.jsp?Error=Database Connection Error");
         }
     }
 

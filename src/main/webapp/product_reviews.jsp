@@ -27,7 +27,13 @@ if (productIdParam == null) {
     <nav class="nav-links">
         <a href="<%= request.getContextPath() %>/index.jsp">Home</a>
         <a href="<%= request.getContextPath() %>/orders.jsp">Orders</a>
+        <a href="<%= request.getContextPath() %>/WishlistServlet">Wishlist</a>
         <a href="<%= request.getContextPath() %>/cart.jsp">Cart</a>
+        <% if (userId == null) { %>
+            <a href="<%= request.getContextPath() %>/login.jsp">Login</a>
+        <% } else { %>
+            <a href="<%= request.getContextPath() %>/AuthServlet?action=logout">Logout</a>
+        <% } %>
     </nav>
 </header>
 
@@ -142,7 +148,7 @@ try (Connection con = MySQLCon.getConnection()) {
 <%
     // Updated SQL to be more robust regarding columns
     String summarySql = "SELECT COUNT(*) AS review_count, AVG(rating) AS average_rating FROM reviews " +
-            "WHERE product_id = ?";
+            "WHERE product_id = ? AND review_status = 'Visible'";
     try (PreparedStatement summaryPs = con.prepareStatement(summarySql)) {
         summaryPs.setInt(1, productId);
         try (ResultSet summaryRs = summaryPs.executeQuery()) {
@@ -160,7 +166,7 @@ try (Connection con = MySQLCon.getConnection()) {
 
     String reviewSql = "SELECT r.rating, r.review_text, r.date_posted, u.full_name " +
             "FROM reviews r JOIN users u ON r.user_id = u.user_id " +
-            "WHERE r.product_id = ? " + 
+            "WHERE r.product_id = ? AND r.review_status = 'Visible' " +
             "ORDER BY r.date_posted DESC";
     try (PreparedStatement reviewPs = con.prepareStatement(reviewSql)) {
         reviewPs.setInt(1, productId);

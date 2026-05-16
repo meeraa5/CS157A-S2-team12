@@ -21,8 +21,9 @@ public class ReviewServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
+        String contextPath = request.getContextPath();
         if (session == null || session.getAttribute("user_id") == null) {
-            response.sendRedirect("login.jsp?Error=Please login to write a review");
+            response.sendRedirect(contextPath + "/login.jsp?Error=Please login to write a review");
             return;
         }
 
@@ -33,19 +34,31 @@ public class ReviewServlet extends HttpServlet {
 
         // Safety check for parameters
         if (pIdStr == null || ratingStr == null) {
-            response.sendRedirect("index.jsp");
+            response.sendRedirect(contextPath + "/index.jsp?Error=Invalid review request");
             return;
         }
 
-        int productId = Integer.parseInt(pIdStr);
-        int rating = Integer.parseInt(ratingStr);
+        int productId;
+        int rating;
+        try {
+            productId = Integer.parseInt(pIdStr);
+            rating = Integer.parseInt(ratingStr);
+        } catch (NumberFormatException e) {
+            response.sendRedirect(contextPath + "/index.jsp?Error=Invalid review request");
+            return;
+        }
+
+        if (rating < 1 || rating > 5) {
+            response.sendRedirect(contextPath + "/product_reviews.jsp?productId=" + productId + "&Error=Rating must be between 1 and 5");
+            return;
+        }
 
         try (Connection con = MySQLCon.getConnection()) {
             
             // 1. Check if user actually bought the item
             boolean hasPurchased = false;
             String checkSql = "SELECT 1 FROM order_items oi JOIN orders o ON oi.order_id = o.order_id " +
-                              "WHERE o.user_id = ? AND oi.product_id = ? LIMIT 1";
+                              "WHERE o.user_id = ? AND oi.product_id = ? AND o.order_status IN ('Paid', 'Completed') LIMIT 1";
             
             try (PreparedStatement ps = con.prepareStatement(checkSql)) {
                 ps.setInt(1, userId);
@@ -56,13 +69,13 @@ public class ReviewServlet extends HttpServlet {
             }
 
             if (!hasPurchased) {
-                response.sendRedirect("product_reviews.jsp?productId=" + productId + "&Error=You must purchase this item before reviewing");
+                response.sendRedirect(contextPath + "/product_reviews.jsp?productId=" + productId + "&Error=You must purchase this item before reviewing");
                 return;
             }
 
             // 2. Insert or Update the review (ON DUPLICATE KEY logic)
-            String reviewSql = "INSERT INTO reviews (user_id, product_id, rating, review_text) VALUES (?, ?, ?, ?) " +
-                               "ON DUPLICATE KEY UPDATE rating = VALUES(rating), review_text = VALUES(review_text), date_posted = CURRENT_TIMESTAMP";
+            String reviewSql = "INSERT INTO reviews (user_id, product_id, rating, review_text, review_status) VALUES (?, ?, ?, ?, 'Visible') " +
+                               "ON DUPLICATE KEY UPDATE rating = VALUES(rating), review_text = VALUES(review_text), review_status = 'Visible', date_posted = CURRENT_TIMESTAMP";
             
             try (PreparedStatement ps = con.prepareStatement(reviewSql)) {
                 ps.setInt(1, userId);
@@ -79,11 +92,11 @@ public class ReviewServlet extends HttpServlet {
                 logPs.executeUpdate();
             }
 
-            response.sendRedirect("product_reviews.jsp?productId=" + productId + "&Success=Thank you for your review!");
+            response.sendRedirect(contextPath + "/product_reviews.jsp?productId=" + productId + "&Success=Thank you for your review!");
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("product_reviews.jsp?productId=" + productId + "&Error=Could not save review: " + e.getMessage());
+            response.sendRedirect(contextPath + "/product_reviews.jsp?productId=" + productId + "&Error=Could not save review");
         }
     }
 }

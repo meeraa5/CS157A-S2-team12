@@ -23,8 +23,9 @@ if (userId == null) {
     <h1 class="logo">Spartan Exchange</h1>
     <nav class="nav-links">
         <a href="<%= request.getContextPath() %>/index.jsp">Home</a>
+        <a href="<%= request.getContextPath() %>/WishlistServlet">Wishlist</a>
         <a href="<%= request.getContextPath() %>/cart.jsp">Cart</a>
-        <a href="<%= request.getContextPath() %>/login.jsp">Account</a>
+        <a href="<%= request.getContextPath() %>/AuthServlet?action=logout">Logout</a>
     </nav>
 </header>
 
